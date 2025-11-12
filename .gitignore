@@ -1,0 +1,22 @@
+# OS junk
+.DS_Store
+Thumbs.db
+
+# IDE junk
+.vscode/
+.idea/
+
+# Local environments
+.env
+*.log
+
+# Sensitive configs
+src/config.php
+
+# PHP junk
+vendor/
+node_modules/
+
+# XAMPP cache
+*.bak
+*.tmp

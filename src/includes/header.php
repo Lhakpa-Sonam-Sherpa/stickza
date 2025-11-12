@@ -1,0 +1,40 @@
+<?php
+// sticker-shop/src/includes/header.php
+
+// Start the session on every page
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Include the configuration file
+require_once __DIR__ . '/../config.php';
+?>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sticker Shop</title>
+    <!-- Link to the main stylesheet -->
+    <link rel="stylesheet" href="<?php echo SITE_URL;?>public/css/style.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container">
+            <a href="/website/public/index.php" class="logo">StickerCo</a>
+            <nav class="main-nav">
+                <ul>
+                    <li><a href="/website/public/index.php">Home</a></li>
+                    <li><a href="/website/public/cart.php">Cart</a></li>
+                    <?php if (isset($_SESSION['user_id'])): ?>
+                        <li><a href="/website/public//profile.php">Profile</a></li>
+                        <li><a href="/website/public//logout.php">Logout</a></li>
+                    <?php else: ?>
+                        <li><a href="/website/public//login.php">Login</a></li>
+                        <li><a href="/website/public//register.php">Register</a></li>
+                    <?php endif; ?>
+                </ul>
+            </nav>
+        </div>
+    </header>
+    <main class="container">
