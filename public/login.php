@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['user_id'] = $user_id; 
         $redirect = $_SESSION['redirect_to'] ?? SITE_URL.'public/';
         unset($_SESSION['redirect_to']);
-        header('Location: ',$redirect); // Redirect to homepage
+        header('Location: '.$redirect); // Redirect to homepage
         exit();
     } else {
         $message = '<p class="error">Login failed. Invalid email or password.</p>';
