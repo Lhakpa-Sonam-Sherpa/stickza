@@ -19,7 +19,11 @@ class Database {
         $this->conn = null;
 
         try {
-            $dsn = 'mysql:host=' . $this->host . ';dbname=' . $this->db_name . ';charset=utf8';
+            $dsn = 'mysql:
+            host=' . $this->host . ';
+            dbname=' . $this->db_name . ';
+            charset=utf8';
+
             $this->conn = new PDO($dsn, $this->username, $this->password);
             
             // Set PDO attributes for error handling and fetch mode
@@ -29,7 +33,6 @@ class Database {
 
         } catch(PDOException $e) {
             // In a real application, you would log this error, not echo it.
-            // For now, we'll display a simple error message.
             die('Database Connection Error: ' . $e->getMessage());
         }
 
