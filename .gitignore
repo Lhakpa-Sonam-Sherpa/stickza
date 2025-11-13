@@ -13,6 +13,9 @@ Thumbs.db
 # Sensitive configs
 src/config.php
 
+#sql file
+database/website_db.sql
+
 # PHP junk
 vendor/
 node_modules/
