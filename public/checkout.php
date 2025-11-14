@@ -22,6 +22,19 @@ if ($cart->isEmpty()) {
     exit();
 }
 
+// Validate cart contents before proceeding
+$cart_contents = $cart->getContents();
+foreach ($cart_contents as $product_id => $quantity) {
+    $product = $product_manager->findById($product_id);
+    if (!$product || $product['stock_quantity'] < $quantity) {
+        // Product is out of stock or not enough quantity
+        // Redirect back to the cart page with an error message
+        $_SESSION['cart_error'] = "Not enough stock for one of your items. Please review your cart.";
+        header('Location: '.SITE_URL.'public/cart.php');
+        exit();
+    }
+}
+
 // 2. Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     // Store the intended destination and redirect to login
