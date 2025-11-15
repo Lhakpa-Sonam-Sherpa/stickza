@@ -1,5 +1,5 @@
 # Sticker Shop 🎨
 
-A simple PHP + MySQL e-commerce project for selling custom stickers.
+A simple PHP + MySQL e-commerce project for stickers
 
 ## 📂 Project Structure
