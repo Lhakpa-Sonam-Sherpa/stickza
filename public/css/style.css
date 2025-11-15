@@ -5,13 +5,18 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    scrollbar-gutter: stable;
 }
 
 body {
-    font-family: sans-serif;
-    line-height: 1.6;
-    background-color: #f4f4f4;
-    color: #333;
+    width: 100%;
+    font-family: var(--font-family);
+    line-height: 1.5;
+    background-color: var(--light-gray);
+    color: var(--dark-gray);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 /* Layout Container */
@@ -19,7 +24,6 @@ body {
     width: 90%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 20px 0;
 }
 
 /* Header and Navigation */
@@ -38,7 +42,7 @@ body {
 .logo {
     font-size: 1.8em;
     font-weight: bold;
-    color: #5cb85c; /* Sticker green */
+    color: var(--primary-color);
     text-decoration: none;
 }
 
@@ -53,31 +57,43 @@ body {
 
 .main-nav ul li a {
     text-decoration: none;
-    color: #333;
+    color: var(--dark-gray);
     padding: 5px 10px;
     transition: color 0.3s;
 }
 
 .main-nav ul li a:hover {
-    color: #5cb85c;
+    color: var(--primary-color);
 }
 
 /* Main Content Area */
 main {
-    min-height: 60vh;
-    padding: 20px 0;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+.main-center{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex: 1;
+}
+.main-content{
+    flex: 1;
+    width: 100%;
+    padding-top: 1.25rem;
 }
 
 /* Footer */
 .main-footer {
-    background: #333;
+    background: var(--dark-gray);
     color: #fff;
     text-align: center;
     padding: 10px 0;
-    margin-top: 30px;
 }
 
-/* Product Grid (for later use) */
+/* Product Grid */
 .product-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -121,18 +137,17 @@ main {
 /* Auth Forms (Login/Register) */
 .auth-form {
     max-width: 400px;
-    margin: 30px auto;
     padding: 20px;
-    background: #fff;
-    border: 1px solid #ddd;
-    border-radius: 5px;
+    background-color: #fff;
+    border: 1px solid var(--medium-gray);
+    border-radius: var(--border-radius);
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .auth-form label {
-    display: block;
-    margin-top: 15px;
-    margin-bottom: 5px;
+    color: var(--form-text-color);
+    font-size: .875rem;
+    margin-bottom: .625rem;
     font-weight: bold;
 }
 
@@ -142,22 +157,18 @@ main {
 .auth-form input[type="number"] {
     width: 100%;
     padding: 10px;
-    margin-bottom: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
 }
 
-.auth-form button,
-.checkout-btn,
-.place-order-btn {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    margin-top: 20px;
-    background-color: #5cb85c;
+button {
+    display: inline-block; /* Changed from block to be more versatile */
+    padding: 10px 20px;
+    max-width: 100%;
+    background-color: var(--primary-color);
     color: white;
     border: none;
-    border-radius: 4px;
+    border-radius: var(--border-radius);
     cursor: pointer;
     font-size: 1em;
     text-align: center;
@@ -165,23 +176,44 @@ main {
     transition: background-color 0.3s;
 }
 
-.auth-form button:hover,
-.checkout-btn:hover,
-.place-order-btn:hover {
-    background-color: #4cae4c;
+button:hover {
+    background-color: var(--primary-hover-color);
+}
+
+
+button {
+    display: block;
+    width: 100%;
+}
+
+
+.btn-danger {
+    background-color: var(--danger-color);
+}
+
+.btn-danger:hover {
+    background-color: var(--danger-hover-color);
+}
+
+
+.btn-sm {
+    padding: 5px 10px;
+    font-size: 0.9em;
 }
 
 /* Messages */
-.error {
-    color: #d9534f;
-    background: #f2dede;
-    border: 1px solid #ebccd1;
+.message { 
     padding: 10px;
-    border-radius: 4px;
+    border: 1px solid transparent;
+    border-radius: var(--border-radius);
     margin-bottom: 15px;
 }
-
-.success {
+.message.error {
+    color: #a94442;
+    background-color: #f2dede;
+    border-color: #ebccd1;
+}
+.message.success {
     color: #3c763d;
     background: #dff0d8;
     border: 1px solid #d6e9c6;
