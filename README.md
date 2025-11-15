@@ -1,10 +1,10 @@
-# Sticker Shop 🎨
+# Sticker Shop 🎨.Stickza
 
-A dynamic and fully functional e-commerce website for a sticker shop, built from scratch using PHP, MySQL, and modern web development practices.
+A dynamic and fully functional e-commerce website development work in progress for a sticker shop, built from scratch using PHP & MySQL.
 
 **[➡️ Live Demo (Coming Soon!)](https://your-live-demo-url.com)**
 
-![Sticker Shop Screenshot](https://via.placeholder.com/800x400.png?text=Add+A+Screenshot+Of+Your+Homepage+Here)
+![Sticker Shop Screenshot]
 *A preview of the Sticker Shop homepage.*
 
 ---
@@ -27,7 +27,7 @@ This project demonstrates a complete e-commerce user flow, from browsing product
 
 *   **Backend:** PHP
 *   **Database:** MySQL
-*   **Frontend:** HTML5, CSS3 (with Flexbox & Grid), vanilla JavaScript (if any)
+*   **Frontend:** HTML5, CSS3 (with Flexbox & Grid)
 *   **Development Environment:** XAMPP (Apache, MySQL, PHP)
 *   **Version Control:** Git & GitHub
 
