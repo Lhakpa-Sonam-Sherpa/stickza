@@ -1,6 +1,7 @@
 <?php
 // sticker-shop/src/includes/footer.php
 ?>
+</div> 
     </main> <!-- /.container -->
     <footer class="main-footer">
         <div class="container">

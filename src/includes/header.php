@@ -14,14 +14,14 @@ require_once __DIR__ . '/../config.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sticker Shop</title>
+    <title>stickza</title>
     <!-- Link to the main stylesheet -->
     <link rel="stylesheet" href="<?php echo SITE_URL;?>public/css/style.css">
 </head>
 <body>
     <header class="main-header">
         <div class="container">
-            <a href="/website/public/index.php" class="logo">StickerCo</a>
+            <a href="/website/public/index.php" class="logo">Stickza</a>
             <nav class="main-nav">
                 <ul>
                     <li><a href="/website/public/index.php">Home</a></li>
@@ -38,3 +38,4 @@ require_once __DIR__ . '/../config.php';
         </div>
     </header>
     <main class="container">
+        <div class="main-center">

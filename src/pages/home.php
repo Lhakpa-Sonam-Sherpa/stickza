@@ -16,12 +16,14 @@ $all_products = $product_manager->fetchAll();
 // Include the header (starts HTML, includes navigation)
 include ROOT_PATH.'src/includes/header.php';
 ?>
+<div class="main-content">
 
-<h1>Featured Stickers</h1>
-
-<?php if (empty($all_products)): ?>
-    <p>No stickers are currently available. Please add some products to the database!</p>
-<?php else: ?>
+    
+    <h1>Featured Stickers</h1>
+    
+    <?php if (empty($all_products)): ?>
+        <p>No stickers are currently available. Please add some products to the database!</p>
+        <?php else: ?>
     <div class="product-grid">
         <?php foreach ($all_products as $prod): ?>
             <div class="product-card">
@@ -38,7 +40,7 @@ include ROOT_PATH.'src/includes/header.php';
     </div>
 <?php endif; ?>
 
+</div>
 <?php
-// Include the footer (closes HTML)
 include __DIR__ . '/../includes/footer.php';
 ?>

@@ -30,14 +30,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header('Location: '.$redirect); // Redirect to homepage
         exit();
     } else {
-        $message = '<p class="error">Login failed. Invalid email or password.</p>';
+        $message = '<p class="message error">Login failed. Invalid email or password.</p>';
     }
 }
 
 include ROOT_PATH . 'src/includes/header.php';
 ?>
 
-<h1>Login to Your Account</h1>
 
 <?php echo $message; ?>
 
@@ -48,11 +47,9 @@ include ROOT_PATH . 'src/includes/header.php';
     <label for="password">Password</label>
     <input type="password" id="password" name="password" required><br><br>
 
-    <button type="submit">Login</button>
+    <button type="submit" >Login</button>
 </form>
+<p style="text-align: center; font-size:.875rem;">Don't have an account? <a href="<?php echo SITE_URL;?>public/register.php">Register here</a>.</p>
 
-<p>Don't have an account? <a href="<?php echo SITE_URL;?>public/register.php">Register here</a>.</p>
 
-<?php
-include ROOT_PATH . 'src/includes/footer.php';
-?>
+<?php include ROOT_PATH . 'src/includes/footer.php'; ?>

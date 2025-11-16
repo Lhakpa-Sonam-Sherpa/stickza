@@ -22,46 +22,53 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Simple validation
     if (empty($data['first_name']) || empty($data['email']) || empty($data['password'])) {
-        $message = '<p class="error">Please fill in all required fields (First Name, Email, Password).</p>';
+        $message = '<p class="message error">Please fill in all required fields (First Name, Email, Password).</p>';
     } elseif ($user_manager->register($data)) {
         $message = '<p class="success">Registration successful! You can now <a href="login.php">log in</a>.</p>';
     } else {
-        $message = '<p class="error">Registration failed. The email may already be in use.</p>';
+        $message = '<p class="message error">Registration failed. The email may already be in use.</p>';
     }
 }
 
 include ROOT_PATH . 'src/includes/header.php';
 ?>
 
-<h1>Register Account</h1>
-
 <?php echo $message; ?>
-
-<form action="register.php" method="POST" class="auth-form">
-    <label for="first_name">First Name *</label>
-    <input type="text" id="first_name" name="first_name" required><br><br>
-
+    <form action="register.php" method="POST" class="auth-form  ">
+        <div class="inputs">
+            <div>
+                <label for="first_name">First Name</label>
+                <input type="text" id="first_name" name="first_name" required>
+            </div>
+            <div>
     <label for="last_name">Last Name</label>
-    <input type="text" id="last_name" name="last_name"><br><br>
+                <input type="text" id="last_name" name="last_name">
+            </div>
+        </div>
 
-    <label for="email">Email *</label>
-    <input type="email" id="email" name="email" required><br><br>
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" required>
 
-    <label for="password">Password *</label>
-    <input type="password" id="password" name="password" required><br><br>
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
 
+        <div class="inputs">
+            <div>
     <label for="address">Address</label>
-    <input type="text" id="address" name="address"><br><br>
-
+                <input type="text" id="address" name="address">
+            </div>
+            <div>
     <label for="city">City</label>
-    <input type="text" id="city" name="city"><br><br>
+                <input type="text" id="city" name="city">
+            </div>
+        </div>
 
     <label for="phone_no">Phone Number</label>
     <input type="text" id="phone_no" name="phone_no"><br><br>
 
     <button type="submit">Register</button>
 </form>
-
+</div>
 <?php
 include ROOT_PATH . 'src/includes/footer.php';
 ?>
