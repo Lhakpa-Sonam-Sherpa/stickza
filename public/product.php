@@ -60,8 +60,31 @@ else:
             <?php endif; ?>
         </div>
     </div>
+    <div class="main-content">
 <?php
 endif;
+    $all_products=$product_manager->fetchAll();
+    if (empty($all_products)): ?>
+        <p>No stickers are currently available. Please add some products to the database!</p>
+<?php
+    else: ?>
+        <div class="product-grid">
+<?php       foreach ($all_products as $prod): ?>
+                <div class="product-card">
+                    <a href="/website/public/product.php?id=<?php echo $prod['id']; ?>">
+                        <!-- Assuming product images are in public/assets/images/products/ -->
+                        <img src="/assets/images/products/<?php echo htmlspecialchars($prod['image_url'] ?? 'placeholder.png'); ?>" 
+                        alt="<?php echo htmlspecialchars($prod['name']); ?>">
+                        <h3><?php echo htmlspecialchars($prod['name']); ?></h3>
+                        <p>$<?php echo number_format($prod['price'], 2); ?></p>
+                    </a>
+                        <!-- Add to Cart button will be added later -->
+                </div>
+<?php       endforeach; ?>
+        </div>
+    </div>
+<?php 
+    endif;
 
 // Include the footer
 include ROOT_PATH . 'src/includes/footer.php';
