@@ -29,8 +29,7 @@ include ROOT_PATH.'src/includes/header.php';
             <div class="product-card">
                 <a href="/website/public/product.php?id=<?php echo $prod['id']; ?>">
                     <!-- Assuming product images are in public/assets/images/products/ -->
-                    <img src="/assets/images/products/<?php echo htmlspecialchars($prod['image_url'] ?? 'placeholder.png'); ?>" 
-                         alt="<?php echo htmlspecialchars($prod['name']); ?>">
+                    <div class="product-image"  style="background-image: url(<?php echo SITE_URL;?>. '/assets/images/products/' . <?php echo htmlspecialchars($product['image_url'] ?? 'placeholder.png'); ?>);" role="img" aria-label="<?php echo htmlspecialchars($product['name']); ?>"></div>
                     <h3><?php echo htmlspecialchars($prod['name']); ?></h3>
                     <p>$<?php echo number_format($prod['price'], 2); ?></p>
                 </a>

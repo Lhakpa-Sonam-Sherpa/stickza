@@ -30,17 +30,13 @@ if (!$product):
 else:
 ?>
     <div class="product-detail">
-        <div class="product-image">
-            <img src="/assets/images/products/<?php echo htmlspecialchars($product['image_url'] ?? 'placeholder.png'); ?>" 
-                 alt="<?php echo htmlspecialchars($product['name']); ?>">
-        </div>
+        <div class="product-image"  style="background-image: url(<?php echo SITE_URL;?>. '/assets/images/products/' . <?php echo htmlspecialchars($product['image_url'] ?? 'placeholder.png'); ?>);" role="img" aria-label="<?php echo htmlspecialchars($product['name']); ?>"></div>
         <div class="product-info">
-            <h1><?php echo htmlspecialchars($product['name']); ?></h1>
+            <h3><?php echo htmlspecialchars($product['name']); ?></h3>
             <p class="price">$<?php echo number_format($product['price'], 2); ?></p>
-            <p class="category">Category: <?php echo htmlspecialchars($product['category_name']); ?></p>
+            <p class="category"><b>Category:</b> <?php echo htmlspecialchars($product['category_name']); ?></p>
             
-            <h2>Description</h2>
-            <p><?php echo nl2br(htmlspecialchars($product['description'])); ?></p>
+            <p class="description"><?php echo nl2br(htmlspecialchars($product['description'])); ?></p>
             
             <p class="stock">
                 <?php if ($product['stock_quantity'] > 0): ?>
@@ -52,10 +48,14 @@ else:
 
             <?php if ($product['stock_quantity'] > 0): ?>
                 <form action="<?php echo SITE_URL;?>public/cart.php" method="POST">
-                    <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
-                    <label for="quantity">Quantity:</label>
-                    <input type="number" id="quantity" name="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" required>
-                    <button type="submit" name="action" value="add">Add to Cart</button>
+                    <div>
+                        <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
+                        <label for="quantity">Quantity:</label>
+                        <input type="number" id="quantity" name="quantity" value="1" min="1" max="<?php echo $product['stock_quantity']; ?>" required><br>
+                    </div>
+                    <div>
+                        <button type="submit" name="action" value="add">Add to Cart</button>
+                    </div>
                 </form>
             <?php endif; ?>
         </div>
@@ -72,13 +72,10 @@ endif;
 <?php       foreach ($all_products as $prod): ?>
                 <div class="product-card">
                     <a href="/website/public/product.php?id=<?php echo $prod['id']; ?>">
-                        <!-- Assuming product images are in public/assets/images/products/ -->
-                        <img src="/assets/images/products/<?php echo htmlspecialchars($prod['image_url'] ?? 'placeholder.png'); ?>" 
-                        alt="<?php echo htmlspecialchars($prod['name']); ?>">
+                        <div class="product-image"  style="background-image: url(<?php echo SITE_URL;?>. '/assets/images/products/' . <?php echo htmlspecialchars($product['image_url'] ?? 'placeholder.png'); ?>);" role="img" aria-label="<?php echo htmlspecialchars($product['name']); ?>"></div>
                         <h3><?php echo htmlspecialchars($prod['name']); ?></h3>
                         <p>$<?php echo number_format($prod['price'], 2); ?></p>
                     </a>
-                        <!-- Add to Cart button will be added later -->
                 </div>
 <?php       endforeach; ?>
         </div>
