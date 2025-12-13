@@ -20,7 +20,7 @@ class Product {
         $query = 'SELECT p.*, c.name as category_name 
                   FROM ' . $this->table . ' p
                   LEFT JOIN categories c ON p.category_id = c.id
-                  WHERE p.stock_quantity > 0
+                  WHERE p.stock_quantity >= 0
                   ORDER BY p.id DESC';
         
         $stmt = $this->conn->prepare($query);

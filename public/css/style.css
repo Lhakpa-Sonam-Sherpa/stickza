@@ -129,11 +129,10 @@ main {
 .product-card {
     background: #fff;
     padding: 15px;
-    /* border: 1px solid var(--medium-gray); */
     border-radius: var(--border-radius);
     box-shadow: 0 2px 5px 0 rgba(0,0,0,0.16),0 2px 10px 0 rgba(0,0,0,0.12);
-    text-align: center;
-    transition: border .2s,box-shadow 0.3s;
+    text-align: left;
+    transition: border .2s ease,box-shadow 0.3s cubic-bezier(.37, 0, .63, 1);
 }
 
 .product-card:hover {

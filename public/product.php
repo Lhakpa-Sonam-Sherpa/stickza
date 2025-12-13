@@ -2,9 +2,9 @@
 // sticker-shop/public/product.php
 
 // Include necessary files
-require_once __DIR__.'/../src/config.php';
-require_once ROOT_PATH.'src/classes/Database.php';
-require_once ROOT_PATH.'src/classes/Product.php';
+require_once __DIR__ . '/../src/config.php';
+require_once ROOT_PATH . 'src/classes/Database.php';
+require_once ROOT_PATH . 'src/classes/Product.php';
 
 
 // Instantiate Database & Product
@@ -25,19 +25,29 @@ if (!$product):
 ?>
     <h1>Product Not Found</h1>
     <p>The sticker you are looking for does not exist or is out of stock.</p>
-    <p><a href="<?php echo SITE_URL?>public/">Go back to the homepage</a></p>
+    <p><a href="<?php echo SITE_URL ?>public/">Go back to the homepage</a></p>
 <?php
 else:
 ?>
     <div class="product-detail">
-        <div class="product-image"  style="background-image: url(<?php echo SITE_URL;?>. '/assets/images/products/' . <?php echo htmlspecialchars($product['image_url'] ?? 'placeholder.png'); ?>);" role="img" aria-label="<?php echo htmlspecialchars($product['name']); ?>"></div>
+        <?php
+        $image_filename = !empty($prod['image_url']) ? $prod['image_url'] : 'placeholder.png';
+
+        $safe_filename = htmlspecialchars($image_filename);
+        $full_image_path = SITE_URL . 'public/assets/images/products/' . $safe_filename;
+        ?>
+        <div class="product-image"
+            style="background-image: url('<?php echo $full_image_path; ?>');"
+            role="img"
+            aria-label="<?php echo htmlspecialchars($product['name']); ?>">
+        </div>
         <div class="product-info">
             <h3><?php echo htmlspecialchars($product['name']); ?></h3>
             <p class="price">$<?php echo number_format($product['price'], 2); ?></p>
             <p class="category"><b>Category:</b> <?php echo htmlspecialchars($product['category_name']); ?></p>
-            
+
             <p class="description"><?php echo nl2br(htmlspecialchars($product['description'])); ?></p>
-            
+
             <p class="stock">
                 <?php if ($product['stock_quantity'] > 0): ?>
                     <span style="color: green;">In Stock (<?php echo $product['stock_quantity']; ?> available)</span>
@@ -47,7 +57,7 @@ else:
             </p>
 
             <?php if ($product['stock_quantity'] > 0): ?>
-                <form action="<?php echo SITE_URL;?>public/cart.php" method="POST">
+                <form action="<?php echo SITE_URL; ?>public/cart.php" method="POST">
                     <div>
                         <input type="hidden" name="product_id" value="<?php echo $product['id']; ?>">
                         <label for="quantity">Quantity:</label>
@@ -61,27 +71,36 @@ else:
         </div>
     </div>
     <div class="main-content">
-<?php
+    <?php
 endif;
-    $all_products=$product_manager->fetchAll();
-    if (empty($all_products)): ?>
+$all_products = $product_manager->fetchAll();
+if (empty($all_products)): ?>
         <p>No stickers are currently available. Please add some products to the database!</p>
-<?php
-    else: ?>
+    <?php
+else: ?>
         <div class="product-grid">
-<?php       foreach ($all_products as $prod): ?>
+            <?php foreach ($all_products as $prod): ?>
                 <div class="product-card">
-                    <a href="/website/public/product.php?id=<?php echo $prod['id']; ?>">
-                        <div class="product-image"  style="background-image: url(<?php echo SITE_URL;?>. '/assets/images/products/' . <?php echo htmlspecialchars($product['image_url'] ?? 'placeholder.png'); ?>);" role="img" aria-label="<?php echo htmlspecialchars($product['name']); ?>"></div>
+                    <a href="<?php echo SITE_URL ?>public/product.php?id=<?php echo $prod['id']; ?>">
+                        <?php
+                        $image_filename = !empty($prod['image_url']) ? $prod['image_url'] : 'placeholder.png';
+                        $safe_filename = htmlspecialchars($image_filename);
+                        $full_image_path = SITE_URL . 'public/assets/images/products/' . $safe_filename;
+                        ?>
+                        <div class="product-image"
+                            style="background-image: url('<?php echo $full_image_path; ?>');"
+                            role="img"
+                            aria-label="<?php echo htmlspecialchars($prod['name']); ?>">
+                        </div>
                         <h3><?php echo htmlspecialchars($prod['name']); ?></h3>
                         <p>$<?php echo number_format($prod['price'], 2); ?></p>
                     </a>
                 </div>
-<?php       endforeach; ?>
+            <?php endforeach; ?>
         </div>
     </div>
-<?php 
-    endif;
+<?php
+endif;
 
 // Include the footer
 include ROOT_PATH . 'src/includes/footer.php';
