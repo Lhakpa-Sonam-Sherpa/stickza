@@ -209,7 +209,7 @@ button {
     font-size: 1em;
     text-align: center;
     text-decoration: none;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s ease-in-out;
 }
 
 button:hover {
@@ -278,7 +278,7 @@ button {
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    background: linear-gradient(-45deg, var(--light-gray),var(--medium-gray));
+    background-color: var(--light-gray);
 }
 
 .product-info .price {
@@ -315,15 +315,17 @@ button {
     border-collapse: collapse;
     margin-top: 20px;
     background: #fff;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
 
 .cart-table th,
 .cart-table td,
 .order-history-table th,
 .order-history-table td {
-    border: 1px solid #ddd;
-    padding: 10px;
+    border: 1px solid var(--medium-gray);
+    padding: 12px 15px; 
     text-align: left;
+    vertical-align: middle; 
 }
 
 .cart-table th {
@@ -333,7 +335,7 @@ button {
 .cart-item-info {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 15px;
 }
 
 .cart-item-info img {
@@ -352,30 +354,20 @@ button {
     text-align: center;
 }
 
-.cart-table .update-form button {
-    padding: 5px 10px;
-    margin: 0;
-    font-size: 0.9em;
-    width: auto;
+/* Cart Summary and Checkout Layout */
+
+.cart-page-layout {
+    display: grid;
+    grid-template-columns: 3fr 1fr; /* 3 parts for the table, 1 part for the summary */
+    gap: 30px;
+    align-items: start;
 }
 
-.remove-btn {
-    background-color: #d9534f !important;
-    padding: 5px 10px !important;
-    margin: 0 !important;
-    width: auto !important;
-}
-
-.remove-btn:hover {
-    background-color: #c9302c !important;
-}
-
-/* Cart Summary and Checkout */
 .cart-summary {
     max-width: 300px;
     margin-top: 20px;
     padding: 20px;
-    border: 1px solid #ddd;
+    border: 1px solid var(--medium-gray);
     background: #fff;
     float: right;
 }
@@ -423,11 +415,4 @@ button {
 .order-confirmation .success-message {
     font-size: 1.2em;
     margin: 20px 0;
-}
-
-/* Clearfix for floats */
-.clearfix::after {
-    content: "";
-    clear: both;
-    display: table;
 }

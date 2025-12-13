@@ -2,10 +2,10 @@
 // sticker-shop/public/cart.php
 
 
-require_once __DIR__.'/../src/config.php';
-require_once ROOT_PATH.'src/classes/Database.php';
-require_once ROOT_PATH.'src/classes/Product.php';
-require_once ROOT_PATH.'src/classes/Cart.php';
+require_once __DIR__ . '/../src/config.php';
+require_once ROOT_PATH . 'src/classes/Database.php';
+require_once ROOT_PATH . 'src/classes/Product.php';
+require_once ROOT_PATH . 'src/classes/Cart.php';
 
 $database = new Database();
 $db = $database->connect();
@@ -31,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
         $message = '<p class="success">Product removed from cart!</p>';
     }
     // Redirect to prevent form resubmission on refresh
-    header('Location: '.SITE_URL.'public/cart.php');
+    header('Location: ' . SITE_URL . 'public/cart.php');
     exit();
 }
 
@@ -62,7 +62,7 @@ include ROOT_PATH . 'src/includes/header.php';
 <?php echo $message; ?>
 
 <?php if ($cart->isEmpty()): ?>
-    <p>Your cart is empty. <a href="<?php echo SITE_URL;?>public/">Start shopping!</a></p>
+    <p>Your cart is empty. <a href="<?php echo SITE_URL; ?>public/">Start shopping!</a></p>
 <?php else: ?>
     <table class="cart-table">
         <thead>
@@ -79,8 +79,8 @@ include ROOT_PATH . 'src/includes/header.php';
                 <tr>
                     <td>
                         <div class="cart-item-info">
-                            <img src="/assets/images/products/<?php echo htmlspecialchars($item['image_url'] ?? 'placeholder.png'); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>" width="50">
-                            <a href="<?php echo SITE_URL;?>public/product.php?id=<?php echo $item['id']; ?>"><?php echo htmlspecialchars($item['name']); ?></a>
+                            <img src="<?php echo SITE_URL; ?>public/assets/images/products/<?php echo htmlspecialchars($item['image_url'] ?? 'placeholder.png'); ?>" alt="<?php echo htmlspecialchars($item['name']); ?>" width="50">
+                            <a href="<?php echo SITE_URL; ?>public/product.php?id=<?php echo $item['id']; ?>"><?php echo htmlspecialchars($item['name']); ?></a>
                         </div>
                     </td>
                     <td>$<?php echo number_format($item['price'], 2); ?></td>
@@ -88,14 +88,18 @@ include ROOT_PATH . 'src/includes/header.php';
                         <form action="<?php echo SITE_URL; ?>public/cart.php" method="POST" class="update-form">
                             <input type="hidden" name="product_id" value="<?php echo $item['id']; ?>">
                             <input type="number" name="quantity" value="<?php echo $item['quantity']; ?>" min="1" max="<?php echo $item['stock_quantity']; ?>" required>
-                            <button type="submit" name="action" value="update">Update</button>
+                            <div class="con">
+                                <button type="submit" name="action" value="update">Update</button>
+                            </div>
                         </form>
                     </td>
                     <td>$<?php echo number_format($item['line_total'], 2); ?></td>
                     <td>
                         <form action="<?php echo SITE_URL; ?>public/cart.php" method="POST">
                             <input type="hidden" name="product_id" value="<?php echo $item['id']; ?>">
-                            <button type="submit" name="action" value="remove" class="remove-btn">Remove</button>
+                            <div class="con">
+                                <button type="submit" name="action" value="remove" class="btn-danger">Remove</button>
+                            </div>
                         </form>
                     </td>
                 </tr>
@@ -104,8 +108,7 @@ include ROOT_PATH . 'src/includes/header.php';
     </table>
 
     <div class="cart-summary">
-        <h2>Cart Summary</h2>
-        <p>Subtotal: <strong>$<?php echo number_format($subtotal, 2); ?></strong></p>
+        <h3>Subtotal: $<?php echo number_format($subtotal, 2); ?></h3>
         <a href="<?php echo SITE_URL; ?>public/checkout.php" class="checkout-btn">Proceed to Checkout</a>
     </div>
 <?php endif; ?>
