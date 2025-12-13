@@ -1,9 +1,9 @@
 <?php
 // sticker-shop/public/login.php
 
-require_once __DIR__.'/../src/config.php';
-require_once ROOT_PATH.'/src/classes/Database.php';
-require_once ROOT_PATH.'/src/classes/User.php';
+require_once __DIR__ . '/../src/config.php';
+require_once ROOT_PATH . '/src/classes/Database.php';
+require_once ROOT_PATH . '/src/classes/User.php';
 
 $database = new Database();
 $db = $database->connect();
@@ -12,7 +12,7 @@ $message = '';
 
 // If user is already logged in, redirect to home
 if (isset($_SESSION['user_id'])) {
-    header('Location: '.SITE_URL.'src/pages/home.php');
+    header('Location: ' . SITE_URL . 'src/pages/home.php');
     exit();
 }
 
@@ -24,10 +24,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     if ($user_id) {
         // Login successful
-        $_SESSION['user_id'] = $user_id; 
-        $redirect = $_SESSION['redirect_to'] ?? SITE_URL.'public/';
+        $_SESSION['user_id'] = $user_id;
+        $redirect = $_SESSION['redirect_to'] ?? SITE_URL . 'public/';
         unset($_SESSION['redirect_to']);
-        header('Location: '.$redirect); // Redirect to homepage
+        header('Location: ' . $redirect); // Redirect to homepage
         exit();
     } else {
         $message = '<p class="message error">Login failed. Invalid email or password.</p>';
@@ -40,16 +40,20 @@ include ROOT_PATH . 'src/includes/header.php';
 
 <?php echo $message; ?>
 
-<form action="<?php echo SITE_URL;?>public/login.php" method="POST" class="auth-form">
+<form action="<?php echo SITE_URL; ?>public/login.php" method="POST" class="auth-form">
+    <div class="con">
+
+    </div>
     <label for="email">Email</label>
     <input type="email" id="email" name="email" required><br><br>
 
     <label for="password">Password</label>
     <input type="password" id="password" name="password" required><br><br>
-
-    <button type="submit" >Login</button>
+    <div class="con">
+        <button type="submit">Login</button>
+    </div>
 </form>
-<p style="text-align: center; font-size:.875rem;">Don't have an account? <a href="<?php echo SITE_URL;?>public/register.php">Register here</a>.</p>
+<p style="text-align: center; font-size:.875rem;">Don't have an account? <a href="<?php echo SITE_URL; ?>public/register.php">Register here</a>.</p>
 
 
 <?php include ROOT_PATH . 'src/includes/footer.php'; ?>

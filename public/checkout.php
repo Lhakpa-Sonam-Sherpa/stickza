@@ -1,12 +1,12 @@
 <?php
 // sticker-shop/public/checkout.php
 
-require_once __DIR__.'/../src/config.php';
-require_once ROOT_PATH.'src/classes/Database.php';
-require_once ROOT_PATH.'src/classes/Product.php';
-require_once ROOT_PATH.'src/classes/Cart.php';
-require_once ROOT_PATH.'src/classes/User.php';
-require_once ROOT_PATH.'src/classes/Order.php';
+require_once __DIR__ . '/../src/config.php';
+require_once ROOT_PATH . 'src/classes/Database.php';
+require_once ROOT_PATH . 'src/classes/Product.php';
+require_once ROOT_PATH . 'src/classes/Cart.php';
+require_once ROOT_PATH . 'src/classes/User.php';
+require_once ROOT_PATH . 'src/classes/Order.php';
 
 $database = new Database();
 $db = $database->connect();
@@ -18,7 +18,7 @@ $message = '';
 
 // 1. Check if cart is empty
 if ($cart->isEmpty()) {
-    header('Location: '.SITE_URL.'public/cart.php');
+    header('Location: ' . SITE_URL . 'public/cart.php');
     exit();
 }
 
@@ -30,7 +30,7 @@ foreach ($cart_contents as $product_id => $quantity) {
         // Product is out of stock or not enough quantity
         // Redirect back to the cart page with an error message
         $_SESSION['cart_error'] = "Not enough stock for one of your items. Please review your cart.";
-        header('Location: '.SITE_URL.'public/cart.php');
+        header('Location: ' . SITE_URL . 'public/cart.php');
         exit();
     }
 }
@@ -38,8 +38,8 @@ foreach ($cart_contents as $product_id => $quantity) {
 // 2. Check if user is logged in
 if (!isset($_SESSION['user_id'])) {
     // Store the intended destination and redirect to login
-    $_SESSION['redirect_to'] = SITE_URL.'public/checkout.php';
-    header('Location: '.SITE_URL.'public/login.php');
+    $_SESSION['redirect_to'] = SITE_URL . 'public/checkout.php';
+    header('Location: ' . SITE_URL . 'public/login.php');
     exit();
 }
 
@@ -59,16 +59,15 @@ foreach ($cart_contents as $product_id => $quantity) {
 
 // 4. Handle form submission (Place Order)
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['place_order'])) {
-    // In a real app, you would validate shipping info here, but we'll use the user's saved info for simplicity.
-    
+
     $order_id = $order_manager->create($customer_id, $cart_contents, $total_amount);
 
     if ($order_id) {
         $cart->clear(); // Clear the cart after successful order
-        header('Location: '.SITE_URL.'public/order_success.php?order_id=' . $order_id);
+        header('Location: ' . SITE_URL . 'public/order_success.php?order_id=' . $order_id);
         exit();
     } else {
-        $message = '<p class="error">Order failed! Please check stock availability or contact support.</p>';
+        $message = '<p class="message error">Order failed! Please check stock availability or contact support.</p>';
     }
 }
 
@@ -95,13 +94,15 @@ include ROOT_PATH . 'src/includes/header.php';
         <p>Shipping: FREE (Local Delivery)</p>
         <h3>Order Total: $<?php echo number_format($total_amount, 2); ?></h3>
 
-        <form action="<?php echo SITE_URL;?>public/checkout.php" method="POST">
+        <form action="<?php echo SITE_URL; ?>public/checkout.php" method="POST">
             <p><strong>Payment Method:</strong> Cash on Delivery (Local Only)</p>
-            <button type="submit" name="place_order" class="place-order-btn">Place Order</button>
+            <div class="con">
+                <button type="submit" name="place_order" class="place-order-btn">Place Order</button>
+            </div>
         </form>
     </div>
 </div>
 
 <?php
-include ROOT_PATH.'src/includes/footer.php';
+include ROOT_PATH . 'src/includes/footer.php';
 ?>

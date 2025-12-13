@@ -1,8 +1,8 @@
 <?php
 // sticker-shop/public/register.php
 require_once __DIR__ . '/../src/config.php';
-require_once ROOT_PATH.'src/classes/Database.php';
-require_once ROOT_PATH.'src/classes/User.php';
+require_once ROOT_PATH . 'src/classes/Database.php';
+require_once ROOT_PATH . 'src/classes/User.php';
 
 $database = new Database();
 $db = $database->connect();
@@ -34,39 +34,40 @@ include ROOT_PATH . 'src/includes/header.php';
 ?>
 
 <?php echo $message; ?>
-    <form action="register.php" method="POST" class="auth-form  ">
-        <div class="inputs">
-            <div>
-                <label for="first_name">First Name</label>
-                <input type="text" id="first_name" name="first_name" required>
-            </div>
-            <div>
-    <label for="last_name">Last Name</label>
-                <input type="text" id="last_name" name="last_name">
-            </div>
+<form action="register.php" method="POST" class="auth-form  ">
+    <div class="inputs">
+        <div>
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" name="first_name" required>
         </div>
-
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required>
-
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required>
-
-        <div class="inputs">
-            <div>
-    <label for="address">Address</label>
-                <input type="text" id="address" name="address">
-            </div>
-            <div>
-    <label for="city">City</label>
-                <input type="text" id="city" name="city">
-            </div>
+        <div>
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" name="last_name">
         </div>
+    </div>
+
+    <label for="email">Email</label>
+    <input type="email" id="email" name="email" required>
+
+    <label for="password">Password</label>
+    <input type="password" id="password" name="password" required>
+
+    <div class="inputs">
+        <div>
+            <label for="address">Address</label>
+            <input type="text" id="address" name="address">
+        </div>
+        <div>
+            <label for="city">City</label>
+            <input type="text" id="city" name="city">
+        </div>
+    </div>
 
     <label for="phone_no">Phone Number</label>
     <input type="text" id="phone_no" name="phone_no"><br><br>
-
-    <button type="submit">Register</button>
+    <div class="con">
+        <button type="submit">Register</button>
+    </div>
 </form>
 </div>
 <?php

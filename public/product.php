@@ -31,7 +31,7 @@ else:
 ?>
     <div class="product-detail">
         <?php
-        $image_filename = !empty($prod['image_url']) ? $prod['image_url'] : 'placeholder.png';
+        $image_filename = !empty($product['image_url']) ? $product['image_url'] : 'placeholder.png';
 
         $safe_filename = htmlspecialchars($image_filename);
         $full_image_path = SITE_URL . 'public/assets/images/products/' . $safe_filename;
