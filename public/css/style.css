@@ -61,6 +61,9 @@ body {
     text-decoration: none;
 }
 
+.main-nav{
+    transition: opacity .2s ease-in;
+}
 .main-nav ul {
     list-style: none;
     display: flex;
@@ -71,13 +74,20 @@ body {
 }
 
 .main-nav ul li a {
+    font-weight: bold;
+    font-size: 1rem;
+    text-transform: uppercase;
     text-decoration: none;
     color: var(--dark-gray);
     padding: 5px 10px;
-    transition: color 0.3s;
+    transition: color 0.2s ease,opacity 0.24s cubic-bezier(.37, 0, .63, 1);
+}
+.main-nav:hover a {
+    opacity: .4;
 }
 
-.main-nav ul li a:hover {
+.main-nav a:hover {
+    opacity: 1;
     color: var(--primary-color);
 }
 
