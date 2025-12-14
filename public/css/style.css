@@ -253,7 +253,8 @@ button {
   background-color: #f2dede;
   border-color: #ebccd1;
 }
-.message.success {
+.message,
+.success {
   color: #3c763d;
   background-color: #dff0d8;
   border-color: #d6e9c6;
@@ -419,7 +420,8 @@ button {
   color: var(--primary-color);
 }
 
-.order-confirmation .success-message {
+.order-confirmation .success-message,
+.success {
   font-size: 1.2em;
   margin: 20px 0;
 }
