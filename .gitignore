@@ -14,7 +14,6 @@ Thumbs.db
 src/config.php
 
 #sql file
-database/website_db.sql
 
 # PHP junk
 vendor/
