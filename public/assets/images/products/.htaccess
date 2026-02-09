@@ -1,0 +1,9 @@
+# Disable PHP execution in uploads
+<FilesMatch "\.(php|php\.|php3|php4|phtml|pl|py|jsp|asp|sh|cgi)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Disable script execution
+Options -ExecCGI
+AddHandler cgi-script .php .pl .py .jsp .asp .sh .cgi
