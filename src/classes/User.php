@@ -1,11 +1,13 @@
 <?php
 // sticker-shop/src/classes/User.php
 
-class User {
+class User
+{
     private $conn;
     private $table = 'customers';
 
-    public function __construct($db) {
+    public function __construct($db)
+    {
         $this->conn = $db;
     }
 
@@ -14,7 +16,8 @@ class User {
      * @param array $data User data including first_name, last_name, email, password, address, city, phone_no.
      * @return bool True on success, false on failure.
      */
-    public function register($data) {
+    public function register($data)
+    {
         // Check if email already exists
         if ($this->findByEmail($data['email'])) {
             return false; // Email already in use
@@ -23,7 +26,7 @@ class User {
         $query = 'INSERT INTO ' . $this->table . ' 
                   (first_name, last_name, email, password, address, city, phone_no) 
                   VALUES (:first_name, :last_name, :email, :password, :address, :city, :phone_no)';
-        
+
         $stmt = $this->conn->prepare($query);
 
         // Hash the password securely
@@ -53,13 +56,26 @@ class User {
      * @param string $password Plain text password.
      * @return int|false User ID on success, false on failure.
      */
-    public function login($email, $password) {
+    public function login($email, $password)
+    {
+        // Debug: log attempt
+        error_log("Login attempt for: $email");
+        
         $user = $this->findByEmail($email);
-
-        if ($user && password_verify($password, $user['password'])) {
-            return $user['id']; // Login successful, return user ID
+        
+        if (!$user) {
+            error_log("User not found: $email");
+            return false;
         }
-        return false; // Login failed
+        
+        // Verify password
+        if (password_verify($password, $user['password'])) {
+            error_log("Password verified for user ID: " . $user['id']);
+            return $user['id']; // Make sure this returns the ID!
+        }
+        
+        error_log("Password verification failed for: $email");
+        return false;
     }
 
     /**
@@ -67,12 +83,15 @@ class User {
      * @param string $email User email.
      * @return array|false User data or false if not found.
      */
-    public function findByEmail($email) {
-        $query = 'SELECT id, password, first_name FROM ' . $this->table . ' WHERE email = :email LIMIT 0,1';
+    public function findByEmail($email)
+    {
+        $query = 'SELECT id, password FROM ' . $this->table . '
+        WHERE email = :email
+        LIMIT 1';
         $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(':email', $email);
+        $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->execute();
-        return $stmt->fetch();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     /**
@@ -80,12 +99,21 @@ class User {
      * @param int $id User ID.
      * @return array|false User data or false if not found.
      */
-    public function findById($id) {
+    public function findById($id)
+    {
         $query = 'SELECT id, first_name, last_name, email, address, city, phone_no FROM ' . $this->table . ' WHERE id = :id LIMIT 0,1';
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();
         return $stmt->fetch();
     }
+
+
+    public function getUserCount()
+    {
+        $sql = "SELECT COUNT(*) as count FROM customers";
+        $stmt = $this->conn->query($sql);
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $row['count'];
+    }
 }
-?>

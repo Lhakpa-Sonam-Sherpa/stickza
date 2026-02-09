@@ -12,9 +12,9 @@ class Admin
     // Admin login
     public function login($email, $password)
     {
-        $sql = 'SELECT id, password FROM '.$this->table.' WHERE email = :email AND is_admin = 1 LIMIT 1';
+        $sql = "SELECT id, password FROM {$this->table} WHERE email = :email AND is_admin = 1 LIMIT 1";
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute(['email' => $email]);
+        $stmt->execute([':email' => $email]);
         $admin = $stmt->fetch();
 
         if ($admin && password_verify($password, $admin['password'])) {
@@ -24,16 +24,24 @@ class Admin
     }
 
     // Find admin by ID
+    /**
+     * Find admin details by ID
+     * @param int $id Admin ID
+     * @return array|false Associative array of admin details or false if not found
+     */
     public function findAdminById($id)
     {
-        $sql = 'SELECT id, first_name, last_name, email, address, city, phone_no
-                FROM '.$this->table.' WHERE id = :id AND is_admin = 1 LIMIT 1';
+        $sql = "SELECT id, first_name, last_name, email, address, city, phone_no, is_admin FROM {$this->table} WHERE id = :id LIMIT 1";
         $stmt = $this->conn->prepare($sql);
-        $stmt->execute(['id' => $id]);
+        $stmt->execute([':id' => $id]);
         return $stmt->fetch();
     }
 
     // Dashboard stats
+    /**
+     * Get dashboard statistics
+     * @return array Associative array with keys: total_products, total_orders, total_users, total_revenue
+     */
     public function getDashboardStats()
     {
         $stats = [
@@ -63,3 +71,4 @@ class Admin
         return $stats;
     }
 }
+

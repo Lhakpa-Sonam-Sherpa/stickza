@@ -1,53 +1,60 @@
 <?php
-// sticker-shop/src/pages/home.php
-
 require_once __DIR__ . '/../config.php';
 require_once ROOT_PATH . '/src/classes/Database.php';
 require_once ROOT_PATH . '/src/classes/Product.php';
 
-// Instantiate Database & Product
 $database = new Database();
 $db = $database->connect();
 $product_manager = new Product($db);
-
-// Fetch all available products
 $all_products = $product_manager->fetchAll();
 
-// Include the header (starts HTML, includes navigation)
 include ROOT_PATH . 'src/includes/header.php';
 ?>
-<div class="main-content">
+<!-- <?php
+// At top of src/pages/home.php
+echo '<pre>SESSION: ';
+print_r($_SESSION);
+echo '</pre>';
+?> -->
+<div class="section-header fade-in">
+</div>
 
-
-    <h1>Featured Stickers</h1>
-
-    <?php if (empty($all_products)): ?>
-        <p>No stickers are currently available. Please add some products to the database!</p>
-    <?php else: ?>
-        <div class="product-grid">
-            <?php foreach ($all_products as $prod): ?>
-                <div class="product-card">
-                    <a href="<?php echo SITE_URL ?>public/product.php?id=<?php echo $prod['id']; ?>">
+<?php if (empty($all_products)): ?>
+    <div class="empty-cart">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+        <h3>No stickers available</h3>
+        <p>Check back soon for new arrivals!</p>
+    </div>
+<?php else: ?>
+    <div class="product-grid">
+        <?php foreach ($all_products as $prod): ?>
+            <article class="product-card fade-in">
+                <a href="<?php echo SITE_URL; ?>public/product.php?id=<?php echo $prod['id']; ?>">
+                    <div class="product-card-image">
                         <?php
                         $image_filename = !empty($prod['image_url']) ? $prod['image_url'] : 'placeholder.png';
-                        $safe_filename = htmlspecialchars($image_filename);
-                        $full_image_path = SITE_URL . 'public/assets/images/products/' . $safe_filename;
                         ?>
-                        <div class="product-image"
-                            style="background-image: url('<?php echo $full_image_path; ?>');"
-                            role="img"
-                            aria-label="<?php echo htmlspecialchars($prod['name']); ?>">
+                        <img src="<?php echo SITE_URL; ?>public/assets/images/products/<?php echo htmlspecialchars($image_filename); ?>" 
+                             alt="<?php echo htmlspecialchars($prod['name']); ?>"
+                             loading="lazy">
+                        <?php if ($prod['stock_quantity'] < 5 && $prod['stock_quantity'] > 0): ?>
+                            <span class="product-card-badge">Low Stock</span>
+                        <?php endif; ?>
+                    </div>
+                    <div class="product-card-content">
+                        <div class="product-card-category"><?php echo htmlspecialchars($prod['category_name'] ?? 'Sticker'); ?></div>
+                        <h3 class="product-card-title"><?php echo htmlspecialchars($prod['name']); ?></h3>
+                        <div class="product-card-price">Rs <?php echo number_format($prod['price'], 2); ?></div>
+                        <div class="product-card-footer">
+                            <span class="btn btn-primary btn-full">View Details →</span>
                         </div>
-                        <h3><?php echo htmlspecialchars($prod['name']); ?></h3>
-                        <p>$<?php echo number_format($prod['price'], 2); ?></p>
-                    </a>
-                    <!-- Add to Cart button will be added later -->
-                </div>
-            <?php endforeach; ?>
-        </div>
-    <?php endif; ?>
+                    </div>
+                </a>
+            </article>
+        <?php endforeach; ?>
+    </div>
+<?php endif; ?>
 
-</div>
-<?php
-include __DIR__ . '/../includes/footer.php';
-?>
+<?php include __DIR__ . '/../includes/footer.php'; ?>
