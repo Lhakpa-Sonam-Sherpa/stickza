@@ -5,7 +5,6 @@ require_once '../../src/classes/Database.php';
 require_once '../../src/classes/Product.php';
 
 // Simple auth check
-session_start();
 if (!isset($_SESSION['admin_id'])) {
     header('Location: ../login.php');
     exit();

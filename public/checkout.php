@@ -85,7 +85,7 @@ include ROOT_PATH . 'src/includes/header.php';
         <p><strong>Address:</strong> <?php echo htmlspecialchars($user['address']); ?></p>
         <p><strong>City:</strong> <?php echo htmlspecialchars($user['city']); ?></p>
         <p><strong>Phone:</strong> <?php echo htmlspecialchars($user['phone_no']); ?></p>
-        <p class="note">To change your address, please update your <a href="<?PHP echo SITE_URL; ?>public/profile.php">profile</a>.</p>
+        <p class="note">To change your address, please update your<a href="<?PHP echo SITE_URL; ?>public/profile.php">profile</a>.</p>
     </div>
 
     <div class="order-summary">

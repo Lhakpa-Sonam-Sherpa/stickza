@@ -10,19 +10,17 @@ $all_products = $product_manager->fetchAll();
 
 include ROOT_PATH . 'src/includes/header.php';
 ?>
-<!-- <?php
-// At top of src/pages/home.php
-echo '<pre>SESSION: ';
-print_r($_SESSION);
-echo '</pre>';
-?> -->
-<div class="section-header fade-in">
-</div>
+
+<!-- Hero Section -->
+<section class="hero-section fade-in">
+    <h1>Premium Stickers for Every Occasion</h1>
+    <p>Handpicked designs, high-quality materials, and endless ways to express yourself. Discover stickers that speak to you.</p>
+</section>
 
 <?php if (empty($all_products)): ?>
     <div class="empty-cart">
-        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
         </svg>
         <h3>No stickers available</h3>
         <p>Check back soon for new arrivals!</p>
@@ -48,7 +46,7 @@ echo '</pre>';
                         <h3 class="product-card-title"><?php echo htmlspecialchars($prod['name']); ?></h3>
                         <div class="product-card-price">Rs <?php echo number_format($prod['price'], 2); ?></div>
                         <div class="product-card-footer">
-                            <span class="btn btn-primary btn-full">View Details →</span>
+                            <span class="btn btn-primary btn-full">View Details</span>
                         </div>
                     </div>
                 </a>
