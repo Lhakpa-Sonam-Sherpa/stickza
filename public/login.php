@@ -137,6 +137,11 @@ $theme = getCurrentTheme();
             </form>
             
             <div class="auth-footer">
+                <div style="text-align:center; margin-top:0.75rem;">
+                    <a href="forgot_password.php" style="font-size:0.875rem; color:var(--text-muted);">
+                        Forgot your password?
+                    </a>
+                </div>
                 Don't have an account? <a href="<?php echo SITE_URL; ?>public/register.php">Create one</a>
             </div>
         </div>

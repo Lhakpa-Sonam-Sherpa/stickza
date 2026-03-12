@@ -1,107 +1,157 @@
 <?php
 $page_title = "Manage Orders";
+// CSV export
+if (isset($_GET['export']) && $_GET['export'] === 'csv') {
+    require_once '../admin_init.php';
+    require_once ROOT_PATH . 'src/classes/Database.php';
+    require_once ROOT_PATH . 'src/classes/Admin.php';
+    $db    = (new Database())->connect();
+    $admin = new Admin($db);
+    // pass same filters
+    $f = $_GET; unset($f['export']);
+    header('Content-Type: text/csv');
+    header('Content-Disposition: attachment; filename="orders-' . date('Y-m-d') . '.csv"');
+    echo $admin->exportOrdersCSV($f);
+    exit();
+}
 require_once './../admin_init.php';
 require_once ROOT_PATH . 'src/classes/Database.php';
-require_once ROOT_PATH . 'src/classes/Order.php';
+require_once ROOT_PATH . 'src/classes/Admin.php';
 
 $database = new Database();
 $db = $database->connect();
-$order_manager = new Order($db);
+$admin_obj = new Admin($db);
 
-// Get filter status
-$status_filter = $_GET['status'] ?? 'all';
-$valid_statuses = ['all', 'pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+// Filters
+$filters = [
+    'order_id'  => trim($_GET['order_id'] ?? ''),
+    'email'     => trim($_GET['email'] ?? ''),
+    'status'    => $_GET['status'] ?? 'all',
+    'date_from' => $_GET['date_from'] ?? '',
+    'date_to'   => $_GET['date_to'] ?? '',
+];
 
-if (!in_array($status_filter, $valid_statuses)) {
-    $status_filter = 'all';
-}
+$page  = max(1, (int)($_GET['page'] ?? 1));
+$limit = 20;
 
-// Fetch orders
-if ($status_filter === 'all') {
-    $stmt = $db->query("SELECT o.*, CONCAT(c.first_name, ' ', c.last_name) as customer_name 
-                        FROM orders o 
-                        JOIN customers c ON o.customer_id = c.id 
-                        ORDER BY o.order_date DESC");
-} else {
-    $stmt = $db->prepare("SELECT o.*, CONCAT(c.first_name, ' ', c.last_name) as customer_name 
-                          FROM orders o 
-                          JOIN customers c ON o.customer_id = c.id 
-                          WHERE o.order_status = :status 
-                          ORDER BY o.order_date DESC");
-    $stmt->execute([':status' => $status_filter]);
-}
-
-$orders = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$result = $admin_obj->getOrders($filters, $page, $limit);
+$orders = $result['data'];
+$total  = $result['total'];
+$total_pages = ceil($total / $limit);
 
 require_once '../includes/header.php';
 ?>
 
 <div class="page-header">
     <h1>Orders</h1>
-    <p>Manage customer orders</p>
+    <p>Manage and track all customer orders (<?php echo $total; ?> total)</p>
 </div>
 
+<!-- Filter Card -->
+<div class="content-card" style="margin-bottom: 1.5rem;">
+    <div class="card-header"><h2 class="card-title">Filter Orders</h2></div>
+    <div style="padding: 1.25rem;">
+        <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: end;">
+            <div>
+                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Order ID</label>
+                <input type="number" name="order_id" class="form-control" placeholder="e.g. 42" value="<?php echo htmlspecialchars($filters['order_id']); ?>">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Customer Email</label>
+                <input type="text" name="email" class="form-control" placeholder="Search email..." value="<?php echo htmlspecialchars($filters['email']); ?>">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Status</label>
+                <select name="status" class="form-control">
+                    <?php foreach (['all', 'pending', 'paid', 'processing', 'shipped', 'cancelled'] as $s): ?>
+                    <option value="<?php echo $s; ?>" <?php echo $filters['status'] === $s ? 'selected' : ''; ?>><?php echo ucfirst($s); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <div>
+                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Date From</label>
+                <input type="date" name="date_from" class="form-control" value="<?php echo htmlspecialchars($filters['date_from']); ?>">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Date To</label>
+                <input type="date" name="date_to" class="form-control" value="<?php echo htmlspecialchars($filters['date_to']); ?>">
+            </div>
+            <div style="display:flex; gap:0.5rem;">
+                <a href="?<?php echo http_build_query($filters); ?>&export=csv" class="btn btn-sm btn-secondary">Export CSV</a>
+                <button type="submit" class="btn btn-primary">Filter</button>
+                <a href="index.php" class="btn btn-secondary">Clear</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Orders Table -->
 <div class="content-card">
     <div class="card-header">
-        <div style="display: flex; gap: 0.5rem;">
-            <a href="?status=all" class="btn btn-sm <?php echo $status_filter === 'all' ? 'btn-primary' : 'btn-secondary'; ?>">All</a>
-            <a href="?status=pending" class="btn btn-sm <?php echo $status_filter === 'pending' ? 'btn-primary' : 'btn-secondary'; ?>">Pending</a>
-            <a href="?status=processing" class="btn btn-sm <?php echo $status_filter === 'processing' ? 'btn-primary' : 'btn-secondary'; ?>">Processing</a>
-            <a href="?status=delivered" class="btn btn-sm <?php echo $status_filter === 'delivered' ? 'btn-primary' : 'btn-secondary'; ?>">Delivered</a>
-        </div>
+        <h2 class="card-title">Orders</h2>
+        <span style="font-size:0.8125rem; color:var(--text-muted);">
+            Showing <?php echo count($orders); ?> of <?php echo $total; ?>
+        </span>
     </div>
-    
-    <div class="card-body" style="padding: 0;">
-        <?php if (count($orders) > 0): ?>
+    <div>
+        <?php if (empty($orders)): ?>
+        <div class="empty-state">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+            <h3>No orders found</h3>
+            <p>Try adjusting your filters.</p>
+        </div>
+        <?php else: ?>
         <table class="data-table">
             <thead>
                 <tr>
                     <th>Order ID</th>
                     <th>Customer</th>
+                    <th>Email</th>
                     <th>Date</th>
                     <th>Total</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                <?php foreach ($orders as $order): ?>
-                <tr>
-                    <td>#<?php echo str_pad($order['id'], 4, '0', STR_PAD_LEFT); ?></td>
-                    <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
-                    <td><?php echo date('M d, Y', strtotime($order['order_date'])); ?></td>
-                    <td>Rs <?php echo number_format($order['total_amount'], 2); ?></td>
-                    <td>
-                        <?php 
-                        $status_colors = [
-                            'pending' => 'var(--warning)',
-                            'processing' => 'var(--secondary)',
-                            'shipped' => '#8b5cf6',
-                            'delivered' => 'var(--success)',
-                            'cancelled' => 'var(--danger)'
-                        ];
-                        $color = $status_colors[$order['order_status']] ?? 'var(--gray-500)';
-                        ?>
-                        <span style="display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0.75rem; background: <?php echo $color; ?>20; color: <?php echo $color; ?>; border-radius: 9999px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">
-                            <span style="width: 6px; height: 6px; background: <?php echo $color; ?>; border-radius: 50%;"></span>
-                            <?php echo ucfirst($order['order_status']); ?>
-                        </span>
-                    </td>
-                    <td>
-                        <a href="view.php?id=<?php echo $order['id']; ?>" class="btn btn-sm btn-secondary">View</a>
-                    </td>
-                </tr>
-                <?php endforeach; ?>
+            <?php 
+            $sc = [
+                'pending'=>'status-pending','paid'=>'status-processing',
+                'processing'=>'status-processing','shipped'=>'status-shipped',
+                'delivered'=>'status-delivered','cancelled'=>'status-cancelled'
+            ];
+            foreach ($orders as $order): 
+                $badge = $sc[$order['order_status']] ?? 'status-pending';
+            ?>
+            <tr>
+                <td style="font-weight:600;">#<?php echo str_pad($order['id'],4,'0',STR_PAD_LEFT); ?></td>
+                <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
+                <td style="color:var(--text-muted); font-size:0.8rem;"><?php echo htmlspecialchars($order['customer_email']); ?></td>
+                <td><?php echo date('M d, Y', strtotime($order['order_date'])); ?></td>
+                <td style="font-weight:500;">Rs <?php echo number_format($order['total_amount'],2); ?></td>
+                <td><span class="status-badge <?php echo $badge; ?>"><?php echo ucfirst($order['order_status']); ?></span></td>
+                <td><a href="view.php?id=<?php echo $order['id']; ?>" class="btn btn-sm btn-secondary">View</a></td>
+            </tr>
+            <?php endforeach; ?>
             </tbody>
         </table>
-        <?php else: ?>
-        <div class="empty-state">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
-            <h3>No orders found</h3>
-            <p>No orders match the selected filter.</p>
-        </div>
         <?php endif; ?>
     </div>
 </div>
+
+<!-- Pagination -->
+<?php if ($total_pages > 1): ?>
+<div style="display:flex; gap:0.5rem; justify-content:center; margin-top:1.5rem; flex-wrap:wrap;">
+    <?php
+    $qs = http_build_query(array_filter(['order_id'=>$filters['order_id'],'email'=>$filters['email'],'status'=>$filters['status'],'date_from'=>$filters['date_from'],'date_to'=>$filters['date_to']]));
+    for ($p = 1; $p <= $total_pages; $p++):
+    ?>
+    <a href="?<?php echo $qs; ?>&page=<?php echo $p; ?>" 
+       class="btn btn-sm <?php echo $p === $page ? 'btn-primary' : 'btn-secondary'; ?>">
+        <?php echo $p; ?>
+    </a>
+    <?php endfor; ?>
+</div>
+<?php endif; ?>
 
 <?php require_once '../includes/footer.php'; ?>
