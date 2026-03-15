@@ -4,6 +4,8 @@ require_once ROOT_PATH . 'src/classes/Database.php';
 require_once ROOT_PATH . 'src/classes/Product.php';
 require_once ROOT_PATH . 'src/classes/Cart.php';
 
+initSecureSession(); // Use secure session
+
 $database = new Database();
 $db = $database->connect();
 $product_manager = new Product($db);
@@ -11,6 +13,8 @@ $cart = new Cart();
 
 // Handle cart actions
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['action'])) {
+    validateCSRF(); // Validate CSRF token
+
     $action = $_POST['action'];
     $product_id = isset($_POST['product_id']) ? (int)$_POST['product_id'] : 0;
     
@@ -39,11 +43,21 @@ if (!empty($cart_contents)) {
     foreach ($cart_contents as $product_id => $quantity) {
         $product = $product_manager->findById($product_id);
         if ($product) {
+            // Calculate the final price, considering discounts
+            $final_price = $product['price'];
+            if (!is_null($product['discount_price'])) {
+                $final_price = $product['discount_price'];
+            } elseif (!is_null($product['discount_percent'])) {
+                $final_price = $product['price'] * (1 - ($product['discount_percent'] / 100));
+            }
+
+            $product['final_price'] = $final_price;
             $product['quantity'] = $quantity;
-            $product['line_total'] = $product['price'] * $quantity;
+            $product['line_total'] = $final_price * $quantity;
             $subtotal += $product['line_total'];
             $cart_details[] = $product;
         } else {
+            // If product not found, remove it from cart
             $cart->remove($product_id);
         }
     }
@@ -77,15 +91,25 @@ include ROOT_PATH . 'src/includes/header.php';
                     </div>
                     <div class="cart-item-details">
                         <h3><?php echo htmlspecialchars($item['name']); ?></h3>
-                        <p>Rs <?php echo number_format($item['price'], 2); ?> each</p>
+                        <p>
+                            <?php if ($item['final_price'] < $item['price']): ?>
+                                <span style="text-decoration: line-through; color: var(--text-muted); font-size: 0.9em;">Rs <?php echo number_format($item['price'], 2); ?></span>
+                                <span style="color: var(--danger); font-weight: bold;">Rs <?php echo number_format($item['final_price'], 2); ?></span>
+                            <?php else: ?>
+                                Rs <?php echo number_format($item['price'], 2); ?>
+                            <?php endif; ?>
+                            each
+                        </p>
                     </div>
                     <div class="cart-item-price">Rs <?php echo number_format($item['line_total'], 2); ?></div>
                     <form action="<?php echo SITE_URL; ?>public/cart.php" method="POST" class="cart-item-quantity">
+                        <?php echo csrfField(); ?>
                         <input type="hidden" name="product_id" value="<?php echo $item['id']; ?>">
                         <input type="hidden" name="action" value="update">
                         <input type="number" name="quantity" value="<?php echo $item['quantity']; ?>" min="1" max="<?php echo $item['stock_quantity']; ?>" onchange="this.form.submit()">
                     </form>
                     <form action="<?php echo SITE_URL; ?>public/cart.php" method="POST">
+                        <?php echo csrfField(); ?>
                         <input type="hidden" name="product_id" value="<?php echo $item['id']; ?>">
                         <input type="hidden" name="action" value="remove">
                         <button type="submit" class="btn btn-ghost btn-sm" style="color: var(--danger);">

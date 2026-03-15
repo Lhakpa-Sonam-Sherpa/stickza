@@ -22,6 +22,42 @@ $page_title = 'Dashboard';
 include 'includes/header.php';
 ?>
 
+<!-- NEW CSS for clickable rows -->
+<style>
+.clickable-row {
+    display: table-row;
+    cursor: pointer;
+    position: relative;
+}
+.clickable-row:hover {
+    background-color: var(--bg-tertiary);
+}
+.clickable-row a {
+    display: contents; /* Makes the link behave like its container */
+    text-decoration: none;
+    color: inherit;
+}
+.clickable-row a::after {
+    content: 'Click to edit/restock';
+    position: absolute;
+    top: 50%;
+    right: 1rem;
+    transform: translateY(-50%);
+    background: var(--gray-800);
+    color: white;
+    padding: 0.25rem 0.5rem;
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+}
+.clickable-row:hover a::after {
+    opacity: 1;
+}
+</style>
+
+
 <div class="page-header">
     <h1>Welcome back, <?php echo htmlspecialchars($admin_details['first_name']); ?>! 👋</h1>
     <p>Here's what's happening with your store today.</p>
@@ -237,15 +273,16 @@ include 'includes/header.php';
                 <thead><tr><th>Product</th><th>Stock</th></tr></thead>
                 <tbody>
                 <?php foreach ($low_stock as $p): ?>
-                <tr>
-                    <td style="font-weight: 500; color: var(--text-primary);"><?php echo htmlspecialchars($p['name']); ?></td>
-                    <td>
-                        <?php if ($p['stock_quantity'] == 0): ?>
-                        <span class="stock-badge stock-out">Out of Stock</span>
-                        <?php else: ?>
-                        <span class="stock-badge stock-low"><?php echo $p['stock_quantity']; ?> left</span>
-                        <?php endif; ?>
-                    </td>
+                <!-- Each row is now a clickable link -->
+                <tr class="clickable-row">
+                        <td style="font-weight: 500; color: var(--text-primary);"><a href="products/edit.php?id=<?php echo $p['id']; ?>"><?php echo htmlspecialchars($p['name']); ?></a></td>
+                        <td>
+                            <?php if ($p['stock_quantity'] == 0): ?>
+                            <span class="stock-badge stock-out">Out of Stock</span>
+                            <?php else: ?>
+                            <span class="stock-badge stock-low"><?php echo $p['stock_quantity']; ?> left</span>
+                            <?php endif; ?>
+                        </td>
                 </tr>
                 <?php endforeach; ?>
                 </tbody>

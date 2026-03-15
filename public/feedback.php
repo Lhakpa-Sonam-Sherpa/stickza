@@ -1,42 +1,25 @@
 <?php
-/**
- * public/feedback.php
- *
- * Enhanced features:
- * • CSRF protection
- * • Honeypot anti-spam field (hidden, must be empty to pass)
- * • Pre-fill name + email when user is logged in
- * • Live character counter (max 2000)
- * • Binds customer_id when a logged-in user submits
- * • Success message with form reset
- */
-
 require_once __DIR__ . '/../src/config.php';
 require_once ROOT_PATH . 'src/classes/Database.php';
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
-// Ensure CSRF token
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 $csrf_token = $_SESSION['csrf_token'];
 
 $database = new Database();
-$db       = $database->connect();
+$db = $database->connect();
 
 $errors  = [];
 $success = '';
-
-// Pre-fill when logged in
-$prefill_name    = '';
-$prefill_email   = '';
-$logged_in_id    = null;
+$prefill_name = '';
+$prefill_email = '';
+$logged_in_id = null;
 
 if (!empty($_SESSION['user_id'])) {
-    $stmt = $db->prepare(
-        "SELECT id, first_name, last_name, email FROM customers WHERE id = :id"
-    );
+    $stmt = $db->prepare("SELECT id, first_name, last_name, email FROM customers WHERE id = :id");
     $stmt->execute([':id' => $_SESSION['user_id']]);
     $u = $stmt->fetch();
     if ($u) {
@@ -47,77 +30,229 @@ if (!empty($_SESSION['user_id'])) {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    validateCSRF();
 
-    // CSRF check
-    $submitted_csrf = $_POST['csrf_token'] ?? '';
-    if (!hash_equals($csrf_token, $submitted_csrf)) {
-        $errors[] = 'Security token invalid. Please refresh and try again.';
-    }
-
-    // Honeypot check – bots fill hidden fields; humans don't
-    if (!empty($_POST['website'])) {
-        // Silently succeed to not alert the bot
+    if (!empty($_POST['website'])) { // Honeypot check
         $success = "Thank you for your feedback! We'll get back to you soon.";
         goto render;
     }
 
-    if (empty($errors)) {
-        $name    = trim($_POST['name']    ?? '');
-        $email   = trim($_POST['email']   ?? '');
-        $message = trim($_POST['message'] ?? '');
+    $validator = new Validator($_POST);
+    $validator->required('name', 'Name')->maxLength('name', 100)
+              ->required('email', 'Email')->email('email')
+              ->required('message', 'Message')->maxLength('message', 2000);
 
-        if (empty($name))                                          $errors[] = 'Name is required.';
-        if (mb_strlen($name) > 100)                               $errors[] = 'Name is too long (max 100 characters).';
-        if (empty($email) || !filter_var($email, FILTER_VALIDATE_EMAIL)) $errors[] = 'A valid email address is required.';
-        if (empty($message))                                       $errors[] = 'Message cannot be empty.';
-        if (mb_strlen($message) > 2000)                           $errors[] = 'Message is too long (max 2000 characters).';
-
-        if (empty($errors)) {
-            try {
-                $stmt = $db->prepare(
-                    "INSERT INTO feedback (customer_id, name, email, message, status)
-                     VALUES (:cid, :name, :email, :message, 'new')"
-                );
-                $stmt->execute([
-                    ':cid'     => $logged_in_id,
-                    ':name'    => $name,
-                    ':email'   => $email,
-                    ':message' => $message,
-                ]);
-                $success = "Thank you! Your message has been received. We'll be in touch soon.";
-                // Clear posted values so form resets
-                $_POST = [];
-            } catch (Exception $e) {
-                error_log('Feedback insert error: ' . $e->getMessage());
-                $errors[] = 'Something went wrong. Please try again later.';
-            }
+    if ($validator->fails()) {
+        $errors = $validator->errors();
+    } else {
+        try {
+            $stmt = $db->prepare(
+                "INSERT INTO feedback (customer_id, name, email, message, status)
+                 VALUES (:cid, :name, :email, :message, 'new')"
+            );
+            $stmt->execute([
+                ':cid'     => $logged_in_id,
+                ':name'    => trim($_POST['name']),
+                ':email'   => trim($_POST['email']),
+                ':message' => trim($_POST['message']),
+            ]);
+            $success = "Thank you! Your message has been received. We'll be in touch soon.";
+            $_POST = []; // Clear form on success
+        } catch (Exception $e) {
+            error_log('Feedback insert error: ' . $e->getMessage());
+            $errors[] = 'Something went wrong. Please try again later.';
         }
     }
 }
 
 render:
-$theme      = getCurrentTheme();
+$theme = getCurrentTheme();
 $page_title = 'Contact & Feedback';
 include ROOT_PATH . 'src/includes/header.php';
 ?>
 
+<!-- The HTML and JavaScript for this file remain unchanged. -->
 <style>
-.feedback-wrap  { max-width: 620px; margin: 0 auto; padding: 2rem 0 3rem; }
-.feedback-head  { text-align: center; margin-bottom: 2rem; }
-.feedback-head h1 { font-size: 1.875rem; font-weight: 700; color: var(--text-primary); margin-bottom: 0.5rem; }
-.feedback-head p  { color: var(--text-secondary); }
-.feedback-card  { background: var(--bg-primary); border: 1px solid var(--border);
-                  border-radius: var(--radius-lg); padding: 2rem; }
-.char-hint      { text-align: right; font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem; }
-.char-hint.over { color: var(--danger); }
-/* Honeypot must be invisible */
-.hp-field       { position: absolute; left: -9999px; opacity: 0; tab-index: -1; }
+.feedback-wrap {
+    max-width: 680px;
+    margin: 0 auto;
+    padding: 3rem 2rem 4rem;
+}
+
+.feedback-head {
+    text-align: center;
+    margin-bottom: 2.5rem;
+}
+
+.feedback-head h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.02em;
+}
+
+.feedback-head p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.5;
+}
+
+.feedback-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.feedback-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+}
+
+.form-group-fb {
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+}
+
+.form-group-fb label {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--text-muted);
+}
+
+.form-group-fb label span {
+    color: var(--danger);
+}
+
+.form-control-fb {
+    padding: 0.875rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    font-size: 0.875rem;
+    background: var(--bg-primary);
+    color: var(--text-primary);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    font-family: inherit;
+}
+
+.form-control-fb:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.form-control-fb:disabled,
+.form-control-fb:read-only {
+    background: var(--bg-tertiary);
+    cursor: not-allowed;
+}
+
+textarea.form-control-fb {
+    min-height: 150px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.char-counter-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+}
+
+.char-hint {
+    text-align: right;
+    font-size: 0.8125rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.char-hint.over {
+    color: var(--danger);
+    font-weight: 600;
+}
+
+.char-hint-text {
+    color: var(--text-muted);
+    font-size: 0.8125rem;
+}
+
+.hp-field {
+    position: absolute;
+    left: -9999px;
+    opacity: 0;
+}
+
+.form-actions-fb {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding-top: 1.75rem;
+    border-top: 1px solid var(--border);
+}
+
+.btn-submit-fb {
+    flex: 1;
+    padding: 0.875rem 1.5rem;
+    background: var(--primary);
+    color: var(--white);
+    border: none;
+    border-radius: var(--radius);
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.btn-submit-fb:hover {
+    background: var(--primary-dark);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.btn-submit-fb:active {
+    transform: translateY(0);
+}
+
+.btn-submit-fb svg {
+    width: 18px;
+    height: 18px;
+}
+
+@media (max-width: 640px) {
+    .feedback-wrap {
+        padding: 2rem 1rem 3rem;
+    }
+
+    .feedback-head h1 {
+        font-size: 1.5rem;
+    }
+
+    .feedback-card {
+        padding: 1.75rem;
+    }
+}
 </style>
 
 <div class="container feedback-wrap">
-    <div class="feedback-head">
-        <h1>Get in Touch</h1>
-        <p>Have a question or suggestion? We'd love to hear from you.</p>
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2.5rem;">
+        <div class="feedback-head" style="text-align:left; margin-bottom:0;">
+            <h1 style="margin-bottom:0.25rem;">Get in Touch</h1>
+            <p style="margin-bottom:0;">Have a question or suggestion? We'd love to hear from you.</p>
+        </div>
+        <a href="settings.php" class="btn btn-secondary btn-sm">← Back</a>
     </div>
 
     <?php if (!empty($errors)): ?>
@@ -135,45 +270,48 @@ include ROOT_PATH . 'src/includes/header.php';
     <?php endif; ?>
 
     <div class="feedback-card">
-        <form method="POST" id="feedbackForm">
-            <!-- CSRF -->
+        <form method="POST" id="feedbackForm" class="feedback-form">
             <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
-
-            <!-- Honeypot (invisible to humans, bots fill it) -->
             <div class="hp-field" aria-hidden="true">
                 <label for="website">Leave this empty</label>
                 <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
             </div>
 
-            <div class="form-group">
-                <label for="name">Your Name <span style="color:var(--danger)">*</span></label>
-                <input type="text" id="name" name="name" class="form-control"
+            <div class="form-group-fb">
+                <label for="name">Your Name <span>*</span></label>
+                <input type="text" id="name" name="name" class="form-control-fb"
                        value="<?php echo htmlspecialchars($_POST['name'] ?? $prefill_name); ?>"
-                       maxlength="100" required autocomplete="name">
+                       maxlength="100" required autocomplete="name" placeholder="John Doe">
             </div>
 
-            <div class="form-group">
-                <label for="email">Email Address <span style="color:var(--danger)">*</span></label>
-                <input type="email" id="email" name="email" class="form-control"
+            <div class="form-group-fb">
+                <label for="email">Email Address <span>*</span></label>
+                <input type="email" id="email" name="email" class="form-control-fb"
                        value="<?php echo htmlspecialchars($_POST['email'] ?? $prefill_email); ?>"
-                       maxlength="100" required autocomplete="email"
+                       maxlength="100" required autocomplete="email" placeholder="you@example.com"
                        <?php echo $logged_in_id ? 'readonly style="background:var(--bg-tertiary);"' : ''; ?>>
                 <?php if ($logged_in_id): ?>
-                <div class="form-hint">Email is linked to your account.</div>
+                <div class="char-hint-text">✓ Email is linked to your account</div>
                 <?php endif; ?>
             </div>
 
-            <div class="form-group">
-                <label for="message">Message <span style="color:var(--danger)">*</span></label>
-                <textarea id="message" name="message" class="form-control" rows="6"
+            <div class="form-group-fb">
+                <label for="message">Message <span>*</span></label>
+                <textarea id="message" name="message" class="form-control-fb" rows="7"
                           maxlength="2000" placeholder="Tell us what's on your mind…"
                           required oninput="updateCounter(this)"><?php echo htmlspecialchars($_POST['message'] ?? ''); ?></textarea>
-                <div class="char-hint" id="charHint">0 / 2000</div>
+                <div class="char-counter-container">
+                    <div class="char-hint-text">Maximum 2,000 characters</div>
+                    <div class="char-hint" id="charHint">0 / 2000</div>
+                </div>
             </div>
 
-            <button type="submit" class="btn btn-primary" style="width:100%; padding:0.875rem; font-size:1rem;">
-                Send Message
-            </button>
+            <div class="form-actions-fb">
+                <button type="submit" class="btn-submit-fb">
+                    <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+                    Send Message
+                </button>
+            </div>
         </form>
     </div>
 </div>
@@ -188,7 +326,6 @@ function updateCounter(el) {
         hint.className   = 'char-hint' + (len > max ? ' over' : '');
     }
 }
-// Initialise counter on page load (value may be repopulated after error)
 document.addEventListener('DOMContentLoaded', function () {
     const ta = document.getElementById('message');
     if (ta) updateCounter(ta);

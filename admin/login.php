@@ -3,13 +3,11 @@ require_once '../src/config.php';
 require_once '../src/classes/Database.php';
 require_once '../src/classes/Admin.php';
 
+initSecureSession();
+
 $database = new Database();
 $db = $database->connect();
 $admin = new Admin($db);
-
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 if (isset($_SESSION['admin_id'])) {
     header('Location: '.SITE_URL.'admin/index.php');
@@ -27,6 +25,7 @@ if (isset($_GET['error']) && $_GET['error'] === 'invalid_session') {
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    validateCSRF();
     $email = trim($_POST['email'] ?? '');
     $password = $_POST['password'] ?? '';
     
@@ -35,8 +34,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         $admin_id = $admin->login($email, $password);
         
-        if ($admin_id) {
+        if (is_int($admin_id)) {
             $_SESSION['admin_id'] = $admin_id;
+            session_regenerate_id(true);
             header('Location: ' . SITE_URL . 'admin/index.php');
             exit();
         } else {
@@ -52,47 +52,74 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Login - Stickza</title>
     <link rel="stylesheet" href="<?php echo SITE_URL; ?>admin/css/admin.css">
+    <style>
+        /* Overriding admin.css for a consistent auth page design */
+        .password-wrapper { position: relative; }
+        .password-toggle {
+            position: absolute;
+            top: 50%;
+            right: 0.75rem;
+            transform: translateY(-50%);
+            cursor: pointer;
+            color: var(--text-muted);
+            background: none;
+            border: none;
+            padding: 0.25rem;
+        }
+        .password-toggle:hover { color: var(--text-primary); }
+        .password-toggle svg { width: 18px; height: 18px; }
+    </style>
 </head>
 <body class="login-page">
     <div class="login-card">
         <div class="login-header">
             <div class="logo">
-                <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                </svg>
-                Stickza
+                <svg width="40" height="40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Stickza Admin
             </div>
             <p>Sign in to access the admin panel</p>
         </div>
         
-        <?php if ($success): ?>
-            <div class="alert alert-success">
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                <?php echo htmlspecialchars($success); ?>
-            </div>
-        <?php endif; ?>
-        
-        <?php if ($error): ?>
-            <div class="alert alert-error">
-                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-                <?php echo htmlspecialchars($error); ?>
-            </div>
-        <?php endif; ?>
+        <?php if ($success): ?><div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
+        <?php if ($error): ?><div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
 
         <form method="POST" class="login-form">
+            <?php echo csrfField(); ?>
             <div class="form-group">
                 <label for="email">Email Address</label>
-                <input type="email" id="email" name="email" placeholder="admin@example.com" required autofocus 
-                       value="<?php echo isset($_POST['email']) ? htmlspecialchars($_POST['email']) : ''; ?>">
+                <input type="email" id="email" name="email" placeholder="admin@example.com" required autofocus value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>">
             </div>
             
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="••••••••" required>
+                <div class="password-wrapper">
+                    <input type="password" id="password" name="password" placeholder="••••••••" required>
+                    <button type="button" class="password-toggle" onclick="togglePasswordVisibility('password')">
+                        <svg class="eye-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        <svg class="eye-closed" style="display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.542-7 .95-3.11 3.8-5.448 7.29-6.101M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.938 21.938l-14-14"/></svg>
+                    </button>
+                </div>
             </div>
             
             <button type="submit" class="login-btn">Sign In</button>
         </form>
     </div>
+    <script>
+        function togglePasswordVisibility(fieldId) {
+            const input = document.getElementById(fieldId);
+            const toggle = input.nextElementSibling;
+            const eyeOpen = toggle.querySelector('.eye-open');
+            const eyeClosed = toggle.querySelector('.eye-closed');
+            if (input.type === "password") {
+                input.type = "text";
+                eyeOpen.style.display = 'none';
+                eyeClosed.style.display = 'block';
+            } else {
+                input.type = "password";
+                eyeOpen.style.display = 'block';
+                eyeClosed.style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>

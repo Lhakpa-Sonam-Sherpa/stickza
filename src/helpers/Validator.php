@@ -158,9 +158,31 @@ class Validator
         return $this->errors;
     }
 
-    /** Returns the first error for a specific field, or ''. */
-    public function firstError(string $field): string
+    /** Update this in Validator.php to make it "Optional" */
+    public function firstError(string $field = ''): string
     {
-        return $this->errors[$field][0] ?? '';
+        if ($field === '') {
+            $all = $this->errors(); 
+            return $all[0] ?? '';
+        }
+        // Check if the key exists and has at least one entry
+        return (!empty($this->errors[$field])) ? $this->errors[$field][0] : '';
     }
+
+    public function addError(string $field, string $message): static
+    {
+        $this->errors[$field][] = $message;
+        return $this;
+    }
+
+    public function max(string $field, float $max, string $label = ''): static
+{
+    $label = $label ?: ucfirst(str_replace('_', ' ', $field));
+    $value = $this->data[$field] ?? '';
+
+    if (is_numeric($value) && (float)$value > $max) {
+        $this->addError($field, "$label must not be greater than $max.");
+    }
+    return $this;
+}
 }

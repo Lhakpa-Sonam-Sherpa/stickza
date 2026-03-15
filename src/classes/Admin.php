@@ -325,7 +325,8 @@ class Admin
      */
     public function updateOrderStatus(int $order_id, string $status): bool
     {
-        $allowed = ['pending', 'paid', 'processing', 'shipped'];
+        // Added 'delivered' to the list of allowed statuses
+        $allowed = ['pending', 'paid', 'processing', 'shipped', 'delivered'];
         if (!in_array($status, $allowed, true)) {
             return false;
         }

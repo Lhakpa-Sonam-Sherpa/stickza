@@ -51,6 +51,7 @@ require_once '../includes/header.php';
 <div class="content-card" style="margin-bottom: 1.5rem;">
     <div class="card-header"><h2 class="card-title">Filter Orders</h2></div>
     <div style="padding: 1.25rem;">
+        <!-- Replaced inline style with a more robust CSS Grid layout -->
         <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: end;">
             <div>
                 <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Order ID</label>
@@ -63,7 +64,10 @@ require_once '../includes/header.php';
             <div>
                 <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Status</label>
                 <select name="status" class="form-control">
-                    <?php foreach (['all', 'pending', 'paid', 'processing', 'shipped', 'cancelled'] as $s): ?>
+                    <?php 
+                    // Added 'delivered' to the filter options
+                    $statuses = ['all', 'pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'];
+                    foreach ($statuses as $s): ?>
                     <option value="<?php echo $s; ?>" <?php echo $filters['status'] === $s ? 'selected' : ''; ?>><?php echo ucfirst($s); ?></option>
                     <?php endforeach; ?>
                 </select>
@@ -76,10 +80,10 @@ require_once '../includes/header.php';
                 <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Date To</label>
                 <input type="date" name="date_to" class="form-control" value="<?php echo htmlspecialchars($filters['date_to']); ?>">
             </div>
-            <div style="display:flex; gap:0.5rem;">
-                <a href="?<?php echo http_build_query($filters); ?>&export=csv" class="btn btn-sm btn-secondary">Export CSV</a>
+            <div style="display:flex; gap:0.5rem; flex-wrap: wrap;">
                 <button type="submit" class="btn btn-primary">Filter</button>
                 <a href="index.php" class="btn btn-secondary">Clear</a>
+                <a href="?<?php echo http_build_query(array_merge($filters, ['export' => 'csv'] )); ?>" class="btn btn-sm btn-secondary">Export CSV</a>
             </div>
         </form>
     </div>
@@ -116,9 +120,12 @@ require_once '../includes/header.php';
             <tbody>
             <?php 
             $sc = [
-                'pending'=>'status-pending','paid'=>'status-processing',
-                'processing'=>'status-processing','shipped'=>'status-shipped',
-                'delivered'=>'status-delivered','cancelled'=>'status-cancelled'
+                'pending'=>'status-pending',
+                'paid'=>'status-processing',
+                'processing'=>'status-processing',
+                'shipped'=>'status-shipped',
+                'delivered'=>'status-delivered',
+                'cancelled'=>'status-cancelled'
             ];
             foreach ($orders as $order): 
                 $badge = $sc[$order['order_status']] ?? 'status-pending';
@@ -143,7 +150,7 @@ require_once '../includes/header.php';
 <?php if ($total_pages > 1): ?>
 <div style="display:flex; gap:0.5rem; justify-content:center; margin-top:1.5rem; flex-wrap:wrap;">
     <?php
-    $qs = http_build_query(array_filter(['order_id'=>$filters['order_id'],'email'=>$filters['email'],'status'=>$filters['status'],'date_from'=>$filters['date_from'],'date_to'=>$filters['date_to']]));
+    $qs = http_build_query(array_filter($filters ));
     for ($p = 1; $p <= $total_pages; $p++):
     ?>
     <a href="?<?php echo $qs; ?>&page=<?php echo $p; ?>" 

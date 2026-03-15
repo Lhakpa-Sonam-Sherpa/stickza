@@ -1,9 +1,9 @@
 <?php
+require_once '../../src/config.php';
 require_once '../../src/classes/Database.php';
 require_once '../../src/classes/Product.php';
 
-// Simple auth check
-session_start();
+initSecureSession();
 if (!isset($_SESSION['admin_id'])) {
     header('Location: ../login.php');
     exit();
@@ -14,37 +14,37 @@ $productObj = new Product($db);
 
 $errors = [];
 $success = '';
-$name = $description = $price = $stock = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name'] ?? '');
-    $description = trim($_POST['description'] ?? '');
-    $price = floatval($_POST['price'] ?? 0);
-    $stock = intval($_POST['stock'] ?? 0);
-    $image = $_FILES['image'] ?? null;
+    validateCSRF();
 
-    // Validation
-    if (empty($name)) $errors[] = "Product name is required.";
-    if (empty($description)) $errors[] = "Description is required.";
-    if ($price <= 0) $errors[] = "Valid price is required.";
-    if ($stock < 0) $errors[] = "Valid stock quantity is required.";
-    
-    if (empty($errors) && $image && $image['error'] !== UPLOAD_ERR_NO_FILE) {
+    $validator = new Validator($_POST);
+    $validator->required('name', 'Product Name')
+              ->required('description', 'Description')
+              ->required('price', 'Price')->numeric('price')->min('price', 0.01)
+              ->required('stock', 'Stock Quantity')->numeric('stock')->min('stock', 0);
+
+    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_NO_FILE) {
+        $validator->addError('image', 'Product image is required.');
+    } else {
+        $validator->image('image');
+    }
+
+    if ($validator->fails()) {
+        $errors = $validator->errors();
+    } else {
+        $image = $_FILES['image'];
         $target_dir = "../../public/assets/images/products/";
         $image_name = time() . "_" . basename($image['name']);
         $target_file = $target_dir . $image_name;
-        $imageFileType = strtolower(pathinfo($image_name, PATHINFO_EXTENSION));
 
-        if (!getimagesize($image['tmp_name'])) {
-            $errors[] = "File is not a valid image.";
-        } elseif ($image['size'] > 2 * 1024 * 1024) {
-            $errors[] = "File size exceeds 2MB.";
-        } elseif (!in_array($imageFileType, ['jpg','jpeg','png','gif','webp'])) {
-            $errors[] = "Only JPG, JPEG, PNG, GIF, and WEBP files are allowed.";
-        } elseif (move_uploaded_file($image['tmp_name'], $target_file)) {
-            if ($productObj->addProduct($name, $description, $price, $stock, $image_name)) {
+        if (move_uploaded_file($image['tmp_name'], $target_file)) {
+            $discount_percent = isset($_POST['discount_percent']) && $_POST['discount_percent'] !== '' ? floatval($_POST['discount_percent']) : null;
+            $discount_price = isset($_POST['discount_price']) && $_POST['discount_price'] !== '' ? floatval($_POST['discount_price']) : null;
+            
+            if ($productObj->addProduct(trim($_POST['name']), trim($_POST['description']), floatval($_POST['price']), intval($_POST['stock']), $image_name, $discount_percent, $discount_price)) {
                 $success = "Product added successfully!";
-                $name = $description = $price = $stock = '';
+                $_POST = []; // Clear form
             } else {
                 $errors[] = "Failed to add product to database.";
                 unlink($target_file);
@@ -52,8 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $errors[] = "Error uploading the image.";
         }
-    } elseif (empty($errors)) {
-        $errors[] = "Product image is required.";
     }
 }
 
@@ -61,66 +59,133 @@ $page_title = "Add Product";
 require_once '../includes/header.php';
 ?>
 
-<div class="page-header">
-    <h1>Add New Product</h1>
-    <p>Create a new sticker product</p>
+<!-- Page Header with Back Button -->
+<div class="page-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
+    <div>
+        <h1>Add New Product</h1>
+        <p>Create a new sticker product</p>
+    </div>
+    <a href="index.php" class="btn btn-secondary btn-sm">← Back to Products</a>
 </div>
 
 <?php if (!empty($errors)): ?>
     <div class="alert alert-error">
-        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-        <div>
-            <?php foreach ($errors as $error): ?>
-                <div><?php echo htmlspecialchars($error); ?></div>
-            <?php endforeach; ?>
-        </div>
+        <div><?php foreach ($errors as $error): ?><div><?php echo htmlspecialchars($error); ?></div><?php endforeach; ?></div>
     </div>
 <?php endif; ?>
 
 <?php if ($success): ?>
-    <div class="alert alert-success">
-        <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-        <?php echo htmlspecialchars($success); ?>
-    </div>
+    <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
 <?php endif; ?>
 
 <div class="content-card">
-    <div class="card-body">
-        <form method="POST" enctype="multipart/form-data" class="form-grid">
-            <div class="form-group">
-                <label>Product Name <span>*</span></label>
-                <input type="text" name="name" class="form-control" value="<?php echo htmlspecialchars($name); ?>" required>
-            </div>
+    <form method="POST" enctype="multipart/form-data" class="form-container">
+        <?php echo csrfField(); ?>
 
-            <div class="form-group">
-                <label>Description <span>*</span></label>
-                <textarea name="description" class="form-control" rows="4" required><?php echo htmlspecialchars($description); ?></textarea>
-            </div>
+        <!-- Basic Information Section -->
+        <div class="form-section">
+            <h3 class="form-section-title">Basic Information</h3>
+            <div class="form-grid">
+                <div class="form-group form-full">
+                    <label for="name">Product Name <span class="required">*</span></label>
+                    <input type="text" id="name" name="name" class="form-control" value="<?php echo htmlspecialchars($_POST['name'] ?? ''); ?>" placeholder="e.g., Custom Vinyl Sticker" required>
+                </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                <div class="form-group form-full">
+                    <label for="description">Description <span class="required">*</span></label>
+                    <textarea id="description" name="description" class="form-control textarea-lg" rows="5" placeholder="Describe your product in detail..." required><?php echo htmlspecialchars($_POST['description'] ?? ''); ?></textarea>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pricing & Inventory Section -->
+        <div class="form-section">
+            <h3 class="form-section-title">Pricing & Inventory</h3>
+            <div class="form-grid form-grid-2">
                 <div class="form-group">
-                    <label>Price (Rs) <span>*</span></label>
-                    <input type="number" step="0.01" name="price" class="form-control" value="<?php echo $price; ?>" required>
+                    <label for="price">Price (Rs) <span class="required">*</span></label>
+                    <div class="input-prefix">
+                        <span class="prefix">Rs</span>
+                        <input type="number" id="price" step="0.01" name="price" class="form-control" value="<?php echo htmlspecialchars($_POST['price'] ?? ''); ?>" placeholder="0.00" required>
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label>Stock Quantity <span>*</span></label>
-                    <input type="number" name="stock" class="form-control" value="<?php echo $stock; ?>" required>
+                    <label for="stock">Stock Quantity <span class="required">*</span></label>
+                    <input type="number" id="stock" name="stock" class="form-control" value="<?php echo htmlspecialchars($_POST['stock'] ?? ''); ?>" placeholder="0" required>
                 </div>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label>Product Image <span>*</span></label>
-                <input type="file" name="image" class="form-control" accept="image/*" required>
-                <div class="form-hint">Max 2MB. JPG, PNG, GIF, or WEBP recommended.</div>
+        <!-- Product Image Section -->
+        <div class="form-section">
+            <h3 class="form-section-title">Product Image</h3>
+            <div class="form-group form-full">
+                <label for="image">Upload Image <span class="required">*</span></label>
+                <label for="image" class="file-upload-wrapper">
+                    <input type="file" id="image" name="image" class="file-input" accept="image/*" required onchange="previewImage(event)">
+                    <div class="file-upload-hint">
+                        <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                        <div>
+                            <p class="font-weight-500">Click to upload or drag and drop</p>
+                            <p class="text-muted">Max 2MB. JPG, PNG, GIF, or WEBP recommended.</p>
+                        </div>
+                    </div>
+                </label>
+                <div id="imagePreview" style="margin-top: 1rem; display:none;">
+                    <img id="previewImg" src="" alt="Image Preview" style="max-width: 150px; max-height: 150px; border-radius: var(--radius); border: 1px solid var(--border);">
+                </div>
             </div>
+        </div>
 
-            <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Add Product</button>
-                <a href="index.php" class="btn btn-secondary">Cancel</a>
+        <!-- Discount Section -->
+        <div class="form-section">
+            <h3 class="form-section-title">Discounts (Optional)</h3>
+            <div class="form-grid form-grid-2">
+                <div class="form-group">
+                    <label for="discount_percent">Discount Percentage (%)</label>
+                    <input type="number" id="discount_percent" step="0.01" name="discount_percent" class="form-control" value="<?php echo htmlspecialchars($_POST['discount_percent'] ?? ''); ?>" placeholder="e.g. 10" min="0" max="100">
+                </div>
+
+                <div class="form-group">
+                    <label for="discount_price">Fixed Discount Price (Rs)</label>
+                    <div class="input-prefix">
+                        <span class="prefix">Rs</span>
+                        <input type="number" id="discount_price" step="0.01" name="discount_price" class="form-control" value="<?php echo htmlspecialchars($_POST['discount_price'] ?? ''); ?>" placeholder="e.g. 50">
+                    </div>
+                </div>
             </div>
-        </form>
-    </div>
+            <div class="form-hint info-hint">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>
+                <span>If both are set, the fixed discount price will take priority.</span>
+            </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions-group">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Add Product
+            </button>
+            <a href="index.php" class="btn btn-secondary btn-lg">Cancel</a>
+        </div>
+    </form>
 </div>
+
+<script>
+function previewImage(event) {
+    const file = event.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const preview = document.getElementById('imagePreview');
+            const img = document.getElementById('previewImg');
+            img.src = e.target.result;
+            preview.style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+</script>
 
 <?php require_once '../includes/footer.php'; ?>

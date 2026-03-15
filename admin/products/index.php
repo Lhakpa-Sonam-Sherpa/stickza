@@ -28,12 +28,17 @@ $total_pages = ceil($total / $limit);
 // Handle delete
 $success = $error = '';
 if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
-    try {
-        $del = $db->prepare("DELETE FROM products WHERE id = :id");
-        $del->execute([':id' => (int)$_GET['delete']]);
-        $success = "Product deleted.";
-    } catch (Exception $e) {
-        $error = "Could not delete product.";
+    // CSRF check for delete action
+    if (!isset($_GET['token']) || !hash_equals($_SESSION['csrf_token'], $_GET['token'])) {
+        $error = "Invalid security token for delete action.";
+    } else {
+        try {
+            $del = $db->prepare("DELETE FROM products WHERE id = :id");
+            $del->execute([':id' => (int)$_GET['delete']]);
+            $success = "Product deleted.";
+        } catch (Exception $e) {
+            $error = "Could not delete product.";
+        }
     }
 }
 
@@ -51,17 +56,14 @@ require_once '../includes/header.php';
     </a>
 </div>
 
-<?php if ($success): ?>
-<div class="alert alert-success"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg><?php echo htmlspecialchars($success); ?></div>
-<?php endif; ?>
-<?php if ($error): ?>
-<div class="alert alert-error"><svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg><?php echo htmlspecialchars($error); ?></div>
-<?php endif; ?>
+<?php if ($success): ?><div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div><?php endif; ?>
+<?php if ($error): ?><div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
 
 <!-- Filter Card -->
 <div class="content-card" style="margin-bottom: 1.5rem;">
     <div class="card-header"><h2 class="card-title">Filter Products</h2></div>
     <div style="padding: 1.25rem;">
+        <!-- Replaced inline style with a more robust CSS Grid layout -->
         <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; align-items: end;">
             <div>
                 <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Product ID</label>
@@ -125,8 +127,7 @@ require_once '../includes/header.php';
             <tr>
                 <td>
                     <?php if ($product['image_url']): ?>
-                    <img src="<?php echo SITE_URL; ?>public/assets/images/products/<?php echo htmlspecialchars($product['image_url']); ?>" 
-                         alt="" style="width:44px; height:44px; object-fit:cover; border-radius:var(--radius); border:1px solid var(--border);">
+                    <img src="<?php echo SITE_URL; ?>public/assets/images/products/<?php echo htmlspecialchars($product['image_url']); ?>" alt="">
                     <?php else: ?>
                     <div style="width:44px; height:44px; background:var(--bg-tertiary); border-radius:var(--radius); border:1px solid var(--border);"></div>
                     <?php endif; ?>
@@ -136,7 +137,27 @@ require_once '../includes/header.php';
                     <div class="product-sku">#<?php echo $product['id']; ?></div>
                 </td>
                 <td><?php echo htmlspecialchars($product['category_name'] ?? '—'); ?></td>
-                <td style="font-weight:500;">Rs <?php echo number_format($product['price'], 2); ?></td>
+                <td style="font-weight:500;">
+                    <?php if (!is_null($product['discount_price']) || !is_null($product['discount_percent'])): ?>
+                        <span style="text-decoration: line-through; color: var(--text-muted); font-size: 0.85em;">
+                            Rs <?php echo number_format($product['price'], 2); ?>
+                        </span>  
+
+                        <span style="color: var(--danger); font-weight: bold;">
+                            Rs <?php
+                                $final_price = $product['price'];
+                                if (!is_null($product['discount_price'])) {
+                                    $final_price = $product['discount_price'];
+                                } elseif (!is_null($product['discount_percent'])) {
+                                    $final_price = $product['price'] * (1 - ($product['discount_percent'] / 100));
+                                }
+                                echo number_format($final_price, 2);
+                            ?>
+                        </span>
+                    <?php else: ?>
+                        Rs <?php echo number_format($product['price'], 2); ?>
+                    <?php endif; ?>
+                </td>
                 <td>
                     <?php if ($product['stock_quantity'] == 0): ?>
                         <span class="stock-badge stock-out">Out of Stock</span>
@@ -149,7 +170,7 @@ require_once '../includes/header.php';
                 <td>
                     <div class="actions">
                         <a href="edit.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-secondary">Edit</a>
-                        <a href="?delete=<?php echo $product['id']; ?>&<?php echo http_build_query(array_filter($filters)); ?>" 
+                        <a href="?delete=<?php echo $product['id']; ?>&token=<?php echo generateCSRFToken(); ?>&<?php echo http_build_query(array_filter($filters  )); ?>" 
                            class="btn btn-sm btn-danger"
                            onclick="return confirm('Delete this product?')">Delete</a>
                     </div>
@@ -166,7 +187,7 @@ require_once '../includes/header.php';
 <?php if ($total_pages > 1): ?>
 <div style="display:flex; gap:0.5rem; justify-content:center; margin-top:1.5rem; flex-wrap:wrap;">
     <?php
-    $qs = http_build_query(array_filter($filters));
+    $qs = http_build_query(array_filter($filters  ));
     for ($p = 1; $p <= $total_pages; $p++):
     ?>
     <a href="?<?php echo $qs; ?>&page=<?php echo $p; ?>" 
@@ -178,3 +199,4 @@ require_once '../includes/header.php';
 <?php endif; ?>
 
 <?php require_once '../includes/footer.php'; ?>
+

@@ -18,8 +18,13 @@ include ROOT_PATH . 'src/includes/header.php';
 </style>
 
 <div class="container policy-container">
-    <h1>Terms of Service</h1>
-    <p class="meta">Last updated: <?php echo date('F j, Y'); ?></p>
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:2rem;">
+        <div>
+            <h1>Terms of Service</h1>
+            <p class="meta">Last updated: <?php echo date('F j, Y'); ?></p>
+        </div>
+        <a href="settings.php" class="btn btn-secondary btn-sm">← Back</a>
+    </div>
 
     <div class="policy-section">
         <h2>1. Acceptance of Terms</h2>

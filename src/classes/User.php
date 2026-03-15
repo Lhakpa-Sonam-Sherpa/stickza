@@ -101,7 +101,7 @@ class User
      */
     public function findById($id)
     {
-        $query = 'SELECT id, first_name, last_name, email, address, city, phone_no FROM ' . $this->table . ' WHERE id = :id LIMIT 0,1';
+        $query = 'SELECT id, first_name, last_name, email, address, city, phone_no, created_at, is_admin FROM ' . $this->table . ' WHERE id = :id LIMIT 0,1';
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':id', $id, PDO::PARAM_INT);
         $stmt->execute();

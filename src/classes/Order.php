@@ -16,13 +16,13 @@ class Order
     /**
      * Creates a new order from the cart contents.
      * @param int $customer_id The ID of the customer placing the order.
-     * @param array $cart_items The cart contents (product_id => quantity).
+     * @param array $cart_details The cart details array, which now includes final_price.
      * @param float $total_amount The total cost of the order.
      * @return int|false The new order ID on success, false on failure.
      */
-    public function create($customer_id, $cart_items, $total_amount)
+    public function create($customer_id, $cart_details, $total_amount)
     {
-        if (empty($cart_items)) return false;
+        if (empty($cart_details)) return false;
 
         try {
             // 1. Start Transaction
@@ -44,21 +44,23 @@ class Order
             $order_id = $this->conn->lastInsertId();
 
             // 3. Insert into order_items and update product stock
-            foreach ($cart_items as $product_id => $quantity) {
-                // Get product price at time of order
-                $product_query = 'SELECT price, stock_quantity FROM ' . $this->products_table . ' WHERE id = :id';
+            foreach ($cart_details as $item) {
+                $product_id = $item['id'];
+                $quantity = $item['quantity'];
+                $price_at_time_of_order = $item['final_price']; // Use the calculated final price
+
+                // Re-check stock just in case
+                $product_query = 'SELECT stock_quantity FROM ' . $this->products_table . ' WHERE id = :id FOR UPDATE';
                 $product_stmt = $this->conn->prepare($product_query);
                 $product_stmt->bindParam(':id', $product_id, PDO::PARAM_INT);
                 $product_stmt->execute();
-                $product = $product_stmt->fetch();
+                $product_stock = $product_stmt->fetchColumn();
 
-                if (!$product || $product['stock_quantity'] < $quantity) {
+                if ($product_stock === false || $product_stock < $quantity) {
                     // Stock check failed, roll back
                     $this->conn->rollBack();
                     return false;
                 }
-
-                $price_at_time_of_order = $product['price'];
 
                 // Insert into order_items
                 $item_query = 'INSERT INTO ' . $this->items_table . ' 
@@ -88,24 +90,46 @@ class Order
                 $this->conn->rollBack();
             }
             // In a real app, log the error
-            // echo "Order creation failed: " . $e->getMessage();
+            error_log("Order creation failed: " . $e->getMessage());
             return false;
         }
     }
 
-    /**
-     * Fetches all orders for a specific customer.
+        /**
+     * Fetches all orders for a specific customer with pagination.
      * @param int $customer_id The ID of the customer.
-     * @return array An array of orders.
+     * @param int $page The current page number.
+     * @param int $limit The number of orders per page.
+     * @return array An array containing orders and total count.
      */
-    public function getCustomerOrders($customer_id)
+    public function getCustomerOrders($customer_id, $page = 1, $limit = 10)
     {
-        $query = 'SELECT id, total_amount, order_status, order_date FROM ' . $this->orders_table . ' WHERE customer_id = :customer_id ORDER BY order_date DESC';
+        $offset = ($page - 1) * $limit;
+
+        // Get total count of orders for the customer
+        $count_query = 'SELECT COUNT(*) FROM ' . $this->orders_table . ' WHERE customer_id = :customer_id';
+        $count_stmt = $this->conn->prepare($count_query);
+        $count_stmt->bindParam(':customer_id', $customer_id, PDO::PARAM_INT);
+        $count_stmt->execute();
+        $total_orders = $count_stmt->fetchColumn();
+
+        // Get paginated orders with item count
+        $query = 'SELECT o.id, o.total_amount, o.order_status, o.order_date, o.updated_at,
+                         (SELECT COUNT(*) FROM ' . $this->items_table . ' oi WHERE oi.order_id = o.id) as item_count
+                  FROM ' . $this->orders_table . ' o
+                  WHERE o.customer_id = :customer_id 
+                  ORDER BY o.order_date DESC
+                  LIMIT :limit OFFSET :offset';
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(':customer_id', $customer_id, PDO::PARAM_INT);
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
-        return $stmt->fetchAll();
+        $orders = $stmt->fetchAll();
+
+        return ['orders' => $orders, 'total' => $total_orders];
     }
+
 
     /**
      * Fetches details for a specific order.
@@ -146,5 +170,34 @@ class Order
         $stmt->execute();
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Return the line‑items for a given order, only if the order belongs
+     * to the supplied customer id.  Returns an array of rows or false.
+     */
+    public function getOrderDetailsForCustomer(int $order_id, int $user_id)
+    {
+        $sql = "
+            SELECT oi.quantity,
+                   oi.price,
+                   p.name
+            FROM orders o
+            JOIN order_items oi ON o.id = oi.order_id
+            JOIN products p    ON oi.product_id = p.id
+            WHERE o.id = :order_id
+              AND o.customer_id = :user_id
+        ";
+
+        $stmt = $this->conn->prepare($sql);
+        $stmt->bindParam(':order_id', $order_id, PDO::PARAM_INT);
+        $stmt->bindParam(':user_id',  $user_id,  PDO::PARAM_INT);
+
+        if ($stmt->execute()) {
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            return $rows ? $rows : false;
+        }
+
+        return false;
     }
 }

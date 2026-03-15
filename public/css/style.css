@@ -1257,3 +1257,239 @@ textarea.form-control {
   white-space: nowrap; 
   border-width: 0; 
 }
+
+/* Add these styles to the end of the file */
+
+/* Header Search Form */
+.header-search-form {
+    position: relative;
+}
+
+.header-search-input {
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-full);
+    padding: 0.5rem 2.5rem 0.5rem 1rem;
+    font-size: 0.875rem;
+    color: var(--text-primary);
+    width: 220px;
+    transition: all var(--transition-base);
+}
+
+.header-search-input:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: var(--bg-primary);
+    box-shadow: 0 0 0 3px var(--primary-light);
+    width: 250px;
+}
+
+.header-search-button {
+    position: absolute;
+    top: 50%;
+    right: 0.5rem;
+    transform: translateY(-50%);
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: var(--text-muted);
+    padding: 0.25rem;
+}
+
+.header-search-button:hover {
+    color: var(--primary);
+}
+
+/* Add these styles to the end of the file */
+
+/* Header Actions Wrapper */
+.header-actions {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.nav-cart {
+    position: relative;
+    display: flex;
+    align-items: center;
+    color: var(--text-primary);
+}
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+    display: none; /* Hidden on desktop */
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-primary);
+}
+
+/* Mobile Navigation Panel */
+.mobile-nav-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 280px;
+    height: 100%;
+    background: var(--bg-primary);
+    box-shadow: -5px 0 15px rgba(0,0,0,0.1);
+    z-index: 1002;
+    transform: translateX(100%);
+    transition: transform 0.3s ease-in-out;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-nav-close {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: var(--text-muted);
+    cursor: pointer;
+}
+
+.mobile-nav-panel nav {
+    margin-top: 4rem;
+    display: flex;
+    flex-direction: column;
+}
+
+.mobile-nav-panel nav a {
+    font-size: 1.125rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.mobile-nav-panel nav a:hover {
+    color: var(--primary);
+}
+
+.mobile-nav-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.4);
+    z-index: 1001;
+    display: none;
+}
+
+/* Responsive Breakpoint */
+@media (max-width: 768px) {
+    .desktop-nav {
+        display: none; /* Hide desktop nav */
+    }
+    .mobile-menu-toggle {
+        display: block; /* Show hamburger icon */
+    }
+    .header-container {
+        justify-content: space-between;
+    }
+}
+
+/* ============================================
+   MOBILE RESPONSIVE FIXES & IMPROVEMENTS
+   ============================================ */
+
+/* --- Cart Page (`cart.php`) Fix --- */
+@media (max-width: 768px) {
+    .cart-item {
+        /* Switch to a more flexible layout on mobile */
+        grid-template-columns: 60px 1fr auto; /* Image, Details, Remove Button */
+        grid-template-rows: auto auto; /* Two rows for content */
+        gap: 0.5rem 1rem; /* Row gap, Column gap */
+        align-items: center;
+    }
+
+    .cart-item-image {
+        grid-row: 1 / 3; /* Make image span both rows */
+        width: 60px;
+        height: 60px;
+    }
+
+    .cart-item-details {
+        grid-column: 2;
+        grid-row: 1;
+    }
+
+    .cart-item-price {
+        grid-column: 2; /* Move price below details */
+        grid-row: 2;
+        text-align: left; /* Align to the left */
+        font-size: 0.9rem;
+    }
+
+    .cart-item-quantity {
+        grid-column: 3; /* Quantity and Remove button in the third column */
+        grid-row: 1;
+        justify-self: end; /* Align to the right */
+    }
+
+    .cart-item form:last-of-type { /* The remove button form */
+        grid-column: 3;
+        grid-row: 2;
+        justify-self: end;
+    }
+}
+
+
+/* --- Profile Page (`profile.php`) Fix --- */
+@media (max-width: 640px) {
+    .profile-header {
+        padding: 2rem 1.5rem;
+    }
+    .profile-avatar {
+        width: 80px;
+        height: 80px;
+        font-size: 1.75rem;
+    }
+    .profile-info h1 {
+        font-size: 1.5rem; /* Reduce font size to prevent overflow */
+        word-break: break-word; /* Break long names if necessary */
+    }
+    .profile-info p {
+        font-size: 1rem; /* Adjust email font size */
+        word-break: break-all; /* Break long emails */
+    }
+    .profile-stats {
+        gap: 1rem; /* Reduce gap between stats */
+    }
+    .profile-stat-value {
+        font-size: 1.25rem; /* Reduce stat value font size */
+    }
+    .profile-stat-label {
+        font-size: 0.75rem;
+    }
+}
+
+
+/* --- Checkout Page (`checkout.php`) Fix --- */
+.summary-item {
+    align-items: flex-start; /* Align items to the top */
+}
+.summary-item-details {
+    flex-grow: 1;
+    min-width: 0; /* Allow details to shrink */
+}
+.summary-item-details h4 {
+    white-space: normal; /* Allow product names to wrap */
+}
+.summary-item-price {
+    font-weight: 600;
+    white-space: nowrap; /* Prevent price from wrapping */
+    margin-left: 1rem; /* Add some space to prevent crowding */
+}
+
+.summary-totals .summary-row span:last-child {
+    white-space: nowrap; /* Ensure total amounts don't wrap */
+}
+
+

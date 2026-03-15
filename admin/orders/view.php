@@ -79,13 +79,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 }
-
+ 
 $status_colors = [
     'pending'    => 'status-pending',
     'paid'       => 'status-processing',
     'processing' => 'status-processing',
     'shipped'    => 'status-shipped',
-    'delivered'  => 'status-delivered',
+    'delivered'  => 'status-delivered', // Added for badge consistency
     'cancelled'  => 'status-cancelled',
 ];
 $badge_class = $status_colors[$order['order_status']] ?? 'status-pending';
@@ -167,32 +167,39 @@ require_once '../includes/header.php';
         <div class="card-header"><h2 class="card-title">Manage Order</h2></div>
         <div style="padding:1.25rem;">
 
-            <?php if ($order['order_status'] === 'cancelled'): ?>
-            <div style="padding:1rem; background:var(--danger-light); border-radius:var(--radius);
-                        color:var(--danger); font-size:0.875rem; text-align:center; font-weight:500;">
-                This order has been cancelled. Stock has already been restored.
+            <?php if ($order['order_status'] === 'cancelled' || $order['order_status'] === 'delivered'): ?>
+            <div style="padding:1rem; background:var(--<?php echo $order['order_status'] === 'cancelled' ? 'danger' : 'success'; ?>-light); border-radius:var(--radius);
+                        color:var(--<?php echo $order['order_status'] === 'cancelled' ? 'danger' : 'success'; ?>); font-size:0.875rem; text-align:center; font-weight:500;">
+                <?php if ($order['order_status'] === 'cancelled'): ?>
+                    This order has been cancelled. Stock has already been restored.
+                <?php else: ?>
+                    This order has been marked as delivered.
+                <?php endif; ?>
             </div>
 
-            <?php else: ?>
+        <?php else: ?>
 
-            <!-- Status update form -->
-            <form method="POST">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
-                <input type="hidden" name="action"     value="update_status">
-                <div class="form-group" style="margin-bottom:1rem;">
-                    <label style="font-size:0.8125rem; font-weight:500; display:block; margin-bottom:0.5rem;">
-                        Update Status
-                    </label>
-                    <select name="status" class="form-control">
-                        <?php foreach (['pending', 'paid', 'processing', 'shipped'] as $s): ?>
-                        <option value="<?php echo $s; ?>" <?php echo $order['order_status'] === $s ? 'selected' : ''; ?>>
-                            <?php echo ucfirst($s); ?>
-                        </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <button type="submit" class="btn btn-primary btn-sm">Update Status</button>
-            </form>
+        <!-- Status update form -->
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+            <input type="hidden" name="action"     value="update_status">
+            <div class="form-group" style="margin-bottom:1rem;">
+                <label style="font-size:0.8125rem; font-weight:500; display:block; margin-bottom:0.5rem;">
+                    Update Status
+                </label>
+                <select name="status" class="form-control">
+                    <?php
+                    // Added 'delivered' to the dropdown options
+                    $statuses = ['pending', 'paid', 'processing', 'shipped', 'delivered'];
+                    foreach ($statuses as $s): ?>
+                    <option value="<?php echo $s; ?>" <?php echo $order['order_status'] === $s ? 'selected' : ''; ?>>
+                        <?php echo ucfirst($s); ?>
+                    </option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary btn-sm">Update Status</button>
+        </form>
 
             <hr style="border:none; border-top:1px solid var(--border); margin:1.25rem 0;">
 
