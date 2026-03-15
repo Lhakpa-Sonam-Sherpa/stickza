@@ -1,9 +1,16 @@
         </div>
     </main>
-    
+
     <footer class="main-footer">
         <div class="footer-content">
-            <p>&copy; <?php echo date('Y'); ?> Stickza. Crafted with 💜 for sticker lovers.</p>
+            <div class="footer-top">
+                <p>&copy; <?php echo date('Y'); ?> Stickza. Crafted with 💜 for sticker lovers.</p>
+            </div>
+            <div class="footer-links">
+                <a href="<?php echo SITE_URL; ?>public/privacy.php" rel="noopener">Privacy Policy</a>
+                <a href="<?php echo SITE_URL; ?>public/terms.php" rel="noopener">Terms of Service</a>
+                <a href="<?php echo SITE_URL; ?>public/feedback.php" rel="noopener">Contact & Feedback</a>
+            </div>
         </div>
     </footer>
     

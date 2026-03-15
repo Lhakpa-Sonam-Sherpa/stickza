@@ -113,6 +113,8 @@ body {
   color: var(--text-primary);
   background-color: var(--bg-secondary);
   min-height: 100vh;
+  display: flex; /* Add this */
+  flex-direction: column; /* Add this */
   -webkit-font-smoothing: antialiased;
 }
 
@@ -239,7 +241,9 @@ a {
 .admin-main {
   max-width: 1400px;
   margin: 0 auto;
-  padding: var(--space-6) var(--space-4);
+  padding: var(--space-8) var(--space-6); /* Adjusted padding */
+  width: 100%; /* Ensure it takes full width up to max-width */
+  flex: 1; /* Add this to make it grow */
 }
 
 .page-header {
@@ -257,6 +261,28 @@ a {
 .page-header p {
   color: var(--text-secondary);
   font-size: 0.875rem;
+}
+
+/* Page header with action buttons */
+.page-header-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-6);
+  gap: var(--space-4);
+}
+
+.page-header-actions > div:first-child {
+  flex: 1;
+}
+
+/* Header with back button layout */
+.header-with-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 1rem;
 }
 
 /* ============================================
@@ -352,6 +378,13 @@ a {
   overflow: hidden;
 }
 
+.form-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2rem;
+}
+
 .card-header {
   padding: var(--space-4) var(--space-5);
   border-bottom: 1px solid var(--border);
@@ -369,6 +402,50 @@ a {
 
 .card-body {
   padding: 0;
+}
+
+/* Filter form styling */
+.filter-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-4);
+  align-items: end;
+  padding: var(--space-5);
+}
+
+.form-label {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+/* Card spacing */
+.card-spacing {
+  margin-bottom: var(--space-6);
+}
+
+/* Button group */
+.btn-group {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Meta text (showing count, etc) */
+.meta-text {
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+/* Pagination wrapper */
+.pagination {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: center;
+  margin-top: var(--space-6);
+  flex-wrap: wrap;
 }
 
 /* ============================================
@@ -436,6 +513,16 @@ a {
   font-size: 0.75rem;
 }
 
+.btn-lg {
+  padding: 0.875rem 1.75rem;
+  font-size: 0.9375rem;
+  font-weight: 500;
+}
+
+.btn-full {
+  width: 100%;
+}
+
 /* ============================================
    TABLES - Clean, Minimal
    ============================================ */
@@ -496,9 +583,34 @@ a {
 .actions {
   display: flex;
   gap: var(--space-2);
+  justify-content: center;
+  flex-wrap: wrap;
 }
 
-/* Status badges */
+/* ============================================
+   TABLE COLUMN WIDTH & CELL UTILITIES
+   ============================================ */
+
+/* Column Width Utilities */
+.col-image { width: 50px; text-align: center; }
+.col-checkbox { width: 36px; text-align: center; }
+.col-id { width: 70px; }
+.col-status { width: 120px; }
+.col-actions { width: 140px; text-align: center; }
+.col-date { width: 110px; }
+.col-phone { width: 100px; }
+.col-message { max-width: 280px; word-break: break-word; }
+
+/* Cell Content Type Utilities */
+.cell-bold { font-weight: 600; color: var(--text-primary); }
+.cell-primary { font-weight: 500; color: var(--text-primary); }
+.cell-muted { color: var(--text-muted); font-size: 0.75rem; }
+.cell-small { font-size: 0.75rem; }
+.cell-nowrap { white-space: nowrap; }
+
+/* ============================================
+   STATUS & STOCK BADGES
+   ============================================ */
 .status-badge {
   display: inline-flex;
   align-items: center;
@@ -597,6 +709,10 @@ textarea.form-control {
   resize: vertical;
 }
 
+.textarea-lg {
+  min-height: 150px;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -671,73 +787,89 @@ textarea.form-control {
 }
 
 /* ============================================
-   LOGIN PAGE - Clean, Minimal
+   AUTHENTICATION - Unified with Public Design
    ============================================ */
 
-.login-page {
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-secondary);
-  padding: var(--space-4);
+/* Auth Container - Full page center layout */
+.auth-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    background-color: var(--bg-secondary);
+    padding: var(--space-4);
 }
 
-.login-card {
-  background: var(--bg-primary);
-  border-radius: var(--radius-lg);
-  border: 1px solid var(--border);
-  width: 100%;
-  max-width: 400px;
-  padding: var(--space-10);
+/* Auth Card - White/Dark box with content */
+.auth-card {
+    background: var(--bg-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: var(--space-10);
+    width: 100%;
+    max-width: 420px;
+    box-shadow: var(--shadow-md);
 }
 
-.login-header {
+/* Auth Header - Title and description */
+.auth-header {
+    text-align: center;
+    margin-bottom: var(--space-8);
+}
+
+.auth-header .logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-3);
+}
+
+.auth-header .logo svg {
+    width: 32px;
+    height: 32px;
+    stroke: var(--primary);
+}
+
+.auth-header h1 {
+    font-size: 1.75rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: var(--space-2);
+}
+
+.auth-header p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.auth-form .form-group {
+    margin-bottom: var(--space-4);
+}
+
+/* Auth Footer - Optional additional links */
+.auth-footer {
   text-align: center;
-  margin-bottom: var(--space-8);
-}
-
-.login-header .logo {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-2);
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: var(--space-3);
-}
-
-.login-header .logo svg {
-  width: 32px;
-  height: 32px;
-  stroke: var(--primary);
-}
-
-.login-header p {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border);
+  font-size: 0.875rem;
   color: var(--text-secondary);
-  font-size: 0.875rem;
 }
 
-.login-form .form-group {
-  margin-bottom: var(--space-4);
-}
-
-.login-btn {
-  width: 100%;
-  padding: var(--space-3);
-  background: var(--primary);
-  color: var(--white);
-  border: none;
-  border-radius: var(--radius);
-  font-size: 0.875rem;
+.auth-footer a {
+  color: var(--primary);
   font-weight: 500;
-  cursor: pointer;
-  transition: background var(--transition-fast);
+  text-decoration: none;
+  transition: color var(--transition-fast);
 }
 
-.login-btn:hover {
-  background: var(--primary-dark);
+.auth-footer a:hover {
+  color: var(--primary-dark);
+  text-decoration: underline;
 }
 
 /* ============================================
@@ -786,6 +918,35 @@ textarea.form-control {
   text-align: center;
   color: var(--text-muted);
   font-size: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.admin-footer-top {
+  font-size: 0.75rem;
+}
+
+.admin-footer-links {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+}
+
+.admin-footer-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+}
+
+.admin-footer-links a:hover {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
 }
 
 /* ============================================
@@ -870,6 +1031,17 @@ textarea.form-control {
   
   .actions {
     flex-direction: column;
+    gap: var(--space-1);
+  }
+
+  /* Hide action buttons text on tablet, show icons only */
+  .btn-sm {
+    padding: var(--space-1) var(--space-2);
+    font-size: 0.7rem;
+  }
+
+  .form-grid-2 {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -877,20 +1049,57 @@ textarea.form-control {
   .stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .admin-logo span {
     display: none;
   }
-  
-  .login-card {
+
+  .auth-card {
     padding: var(--space-6);
+  }
+
+  /* Horizontal scroll wrapper for mobile tables */
+  .data-table-wrapper {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0 calc(var(--space-4) * -1);
+    padding: 0 var(--space-4);
+  }
+
+  .data-table {
+    min-width: 600px;
+    font-size: 0.7rem;
+  }
+
+  .data-table th,
+  .data-table td {
+    padding: var(--space-1) var(--space-2);
+  }
+
+  /* Reduce column widths on mobile */
+  .col-image { width: 40px; }
+  .col-checkbox { width: 32px; }
+  .col-id { width: 50px; }
+  .col-status { width: 90px; }
+  .col-actions { width: 100px; }
+  .col-date { width: 80px; }
+  .col-phone { width: 80px; }
+  .col-message { max-width: 200px; }
+
+  .actions {
+    flex-direction: row;
+    gap: var(--space-1);
+  }
+
+  .btn-sm {
+    padding: var(--space-1);
+    font-size: 0.65rem;
   }
 }
 
 /* ============================================
-   NEW FORM STYLES
+   NEW FORM CONTAINER & SECTION STYLES
    ============================================ */
-
 .form-container {
     display: flex;
     flex-direction: column;
@@ -899,13 +1108,9 @@ textarea.form-control {
 }
 
 .form-section {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
     padding-bottom: 1.5rem;
     border-bottom: 1px solid var(--border);
 }
-
 .form-section:last-of-type {
     border-bottom: none;
     padding-bottom: 0;
@@ -917,13 +1122,7 @@ textarea.form-control {
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 0.5rem;
-}
-
-.form-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+    margin-bottom: 1.5rem;
 }
 
 .form-grid-2 {
@@ -932,10 +1131,6 @@ textarea.form-control {
 
 .form-full {
     grid-column: 1 / -1;
-}
-
-.form-group .required {
-    color: var(--danger);
 }
 
 .input-prefix {
@@ -963,7 +1158,7 @@ textarea.form-control {
     text-align: center;
     cursor: pointer;
     transition: all 0.2s ease;
-    background: var(--bg-secondary);
+    background: var(--bg-tertiary);
 }
 
 .file-upload-wrapper:hover {
@@ -985,7 +1180,6 @@ textarea.form-control {
 
 .file-upload-hint p { margin: 0; }
 .font-weight-500 { font-weight: 500; color: var(--text-primary); }
-.text-muted { color: var(--text-muted); font-size: 0.8125rem; }
 
 .current-image-section {
     margin-top: 1.5rem;
@@ -1000,7 +1194,7 @@ textarea.form-control {
     margin-bottom: 0.75rem;
 }
 
-.current-image img, #previewImg {
+#previewImg {
     width: 100px;
     height: 100px;
     object-fit: cover;
@@ -1017,6 +1211,7 @@ textarea.form-control {
     color: var(--info);
     border-radius: var(--radius);
     border-left: 3px solid var(--info);
+    margin-top: 0.5rem;
 }
 
 .info-hint svg { flex-shrink: 0; }
@@ -1029,19 +1224,7 @@ textarea.form-control {
     border-top: 1px solid var(--border);
 }
 
-.btn-lg {
-    padding: 0.875rem 1.75rem;
-    font-size: 0.9375rem;
-}
-
 .btn-lg svg {
     width: 18px;
     height: 18px;
 }
-
-@media (max-width: 768px) {
-    .form-grid-2 {
-        grid-template-columns: 1fr;
-    }
-}
-

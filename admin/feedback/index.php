@@ -88,7 +88,7 @@ require_once '../includes/header.php';
 ?>
 
 <!-- Page header -->
-<div class="page-header" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem;">
+<div class="page-header">
     <div>
         <h1 style="display:flex; align-items:center; gap:0.5rem;">
             Customer Feedback
@@ -99,18 +99,18 @@ require_once '../includes/header.php';
             </span>
             <?php endif; ?>
         </h1>
-        <p style="color:var(--text-muted); margin-top:0.2rem;">Contact form submissions from customers</p>
+        <p>Contact form submissions from customers</p>
     </div>
 </div>
 
 <?php if ($success): ?>
-<div class="alert alert-success" style="margin-bottom:1.25rem;">
+<div class="alert alert-success">
     <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
     <?php echo $success; ?>
 </div>
 <?php endif; ?>
 <?php if ($error): ?>
-<div class="alert alert-error" style="margin-bottom:1.25rem;">
+<div class="alert alert-error">
     <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
     <?php echo $error; ?>
 </div>
@@ -192,30 +192,30 @@ require_once '../includes/header.php';
                           : $fb['message'];
             ?>
             <tr>
-                <td>
+                <td class="col-checkbox">
                     <input type="checkbox" name="selected_ids[]" value="<?php echo $fb['id']; ?>"
                            class="row-cb" style="cursor:pointer;">
                 </td>
-                <td style="font-weight:500; white-space:nowrap;">
+                <td class="cell-primary cell-nowrap">
                     <?php echo htmlspecialchars($fb['name']); ?>
                 </td>
-                <td style="white-space:nowrap;">
+                <td class="cell-nowrap">
                     <a href="mailto:<?php echo htmlspecialchars($fb['email']); ?>"
                        style="color:var(--primary); font-size:0.8rem;">
                         <?php echo htmlspecialchars($fb['email']); ?>
                     </a>
                 </td>
-                <td style="max-width:260px; font-size:0.8125rem; color:var(--text-secondary);"
+                <td class="col-message cell-muted"
                     title="<?php echo htmlspecialchars($fb['message']); ?>">
                     <?php echo htmlspecialchars($preview); ?>
                 </td>
-                <td>
+                <td class="col-status">
                     <span class="status-badge <?php echo $badge; ?>"><?php echo ucfirst($fb['status']); ?></span>
                 </td>
-                <td style="white-space:nowrap; color:var(--text-muted); font-size:0.8rem;">
+                <td class="col-date cell-muted cell-nowrap">
                     <?php echo date('M d, Y', strtotime($fb['submitted_at'])); ?>
                 </td>
-                <td>
+                <td class="col-actions">
                     <div style="display:flex; gap:0.3rem; flex-wrap:nowrap;">
                         <!-- Mark Read (only if 'new') -->
                         <?php if ($fb['status'] === 'new'): ?>
@@ -268,7 +268,7 @@ require_once '../includes/header.php';
 
 <!-- Pagination -->
 <?php if ($total_pages > 1): ?>
-<div style="display:flex; gap:0.5rem; justify-content:center; margin-top:1.5rem; flex-wrap:wrap;">
+<div class="pagination">
     <?php for ($p = 1; $p <= $total_pages; $p++): ?>
     <a href="?status=<?php echo urlencode($status_filter); ?>&page=<?php echo $p; ?>"
        class="btn btn-sm <?php echo $p === $page ? 'btn-primary' : 'btn-secondary'; ?>">

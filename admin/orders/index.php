@@ -48,52 +48,49 @@ require_once '../includes/header.php';
 </div>
 
 <!-- Filter Card -->
-<div class="content-card" style="margin-bottom: 1.5rem;">
+<div class="content-card card-spacing">
     <div class="card-header"><h2 class="card-title">Filter Orders</h2></div>
-    <div style="padding: 1.25rem;">
-        <!-- Replaced inline style with a more robust CSS Grid layout -->
-        <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: end;">
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Order ID</label>
-                <input type="number" name="order_id" class="form-control" placeholder="e.g. 42" value="<?php echo htmlspecialchars($filters['order_id']); ?>">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Customer Email</label>
-                <input type="text" name="email" class="form-control" placeholder="Search email..." value="<?php echo htmlspecialchars($filters['email']); ?>">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Status</label>
-                <select name="status" class="form-control">
-                    <?php 
-                    // Added 'delivered' to the filter options
-                    $statuses = ['all', 'pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'];
-                    foreach ($statuses as $s): ?>
-                    <option value="<?php echo $s; ?>" <?php echo $filters['status'] === $s ? 'selected' : ''; ?>><?php echo ucfirst($s); ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Date From</label>
-                <input type="date" name="date_from" class="form-control" value="<?php echo htmlspecialchars($filters['date_from']); ?>">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Date To</label>
-                <input type="date" name="date_to" class="form-control" value="<?php echo htmlspecialchars($filters['date_to']); ?>">
-            </div>
-            <div style="display:flex; gap:0.5rem; flex-wrap: wrap;">
-                <button type="submit" class="btn btn-primary">Filter</button>
-                <a href="index.php" class="btn btn-secondary">Clear</a>
-                <a href="?<?php echo http_build_query(array_merge($filters, ['export' => 'csv'] )); ?>" class="btn btn-sm btn-secondary">Export CSV</a>
-            </div>
-        </form>
-    </div>
+    <form method="GET" class="filter-form">
+        <div>
+            <label class="form-label">Order ID</label>
+            <input type="number" name="order_id" class="form-control" placeholder="e.g. 42" value="<?php echo htmlspecialchars($filters['order_id']); ?>">
+        </div>
+        <div>
+            <label class="form-label">Customer Email</label>
+            <input type="text" name="email" class="form-control" placeholder="Search email..." value="<?php echo htmlspecialchars($filters['email']); ?>">
+        </div>
+        <div>
+            <label class="form-label">Status</label>
+            <select name="status" class="form-control">
+                <?php
+                // Added 'delivered' to the filter options
+                $statuses = ['all', 'pending', 'paid', 'processing', 'shipped', 'delivered', 'cancelled'];
+                foreach ($statuses as $s): ?>
+                <option value="<?php echo $s; ?>" <?php echo $filters['status'] === $s ? 'selected' : ''; ?>><?php echo ucfirst($s); ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div>
+            <label class="form-label">Date From</label>
+            <input type="date" name="date_from" class="form-control" value="<?php echo htmlspecialchars($filters['date_from']); ?>">
+        </div>
+        <div>
+            <label class="form-label">Date To</label>
+            <input type="date" name="date_to" class="form-control" value="<?php echo htmlspecialchars($filters['date_to']); ?>">
+        </div>
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="index.php" class="btn btn-secondary">Clear</a>
+            <a href="?<?php echo http_build_query(array_merge($filters, ['export' => 'csv'] )); ?>" class="btn btn-sm btn-secondary">Export CSV</a>
+        </div>
+    </form>
 </div>
 
 <!-- Orders Table -->
 <div class="content-card">
     <div class="card-header">
         <h2 class="card-title">Orders</h2>
-        <span style="font-size:0.8125rem; color:var(--text-muted);">
+        <span class="meta-text">
             Showing <?php echo count($orders); ?> of <?php echo $total; ?>
         </span>
     </div>
@@ -131,13 +128,13 @@ require_once '../includes/header.php';
                 $badge = $sc[$order['order_status']] ?? 'status-pending';
             ?>
             <tr>
-                <td style="font-weight:600;">#<?php echo str_pad($order['id'],4,'0',STR_PAD_LEFT); ?></td>
+                <td class="col-id cell-bold">#<?php echo str_pad($order['id'],4,'0',STR_PAD_LEFT); ?></td>
                 <td><?php echo htmlspecialchars($order['customer_name']); ?></td>
-                <td style="color:var(--text-muted); font-size:0.8rem;"><?php echo htmlspecialchars($order['customer_email']); ?></td>
+                <td class="cell-muted"><?php echo htmlspecialchars($order['customer_email']); ?></td>
                 <td><?php echo date('M d, Y', strtotime($order['order_date'])); ?></td>
-                <td style="font-weight:500;">Rs <?php echo number_format($order['total_amount'],2); ?></td>
+                <td class="cell-primary">Rs <?php echo number_format($order['total_amount'],2); ?></td>
                 <td><span class="status-badge <?php echo $badge; ?>"><?php echo ucfirst($order['order_status']); ?></span></td>
-                <td><a href="view.php?id=<?php echo $order['id']; ?>" class="btn btn-sm btn-secondary">View</a></td>
+                <td class="col-actions"><a href="view.php?id=<?php echo $order['id']; ?>" class="btn btn-sm btn-secondary">View</a></td>
             </tr>
             <?php endforeach; ?>
             </tbody>
@@ -148,12 +145,12 @@ require_once '../includes/header.php';
 
 <!-- Pagination -->
 <?php if ($total_pages > 1): ?>
-<div style="display:flex; gap:0.5rem; justify-content:center; margin-top:1.5rem; flex-wrap:wrap;">
+<div class="pagination">
     <?php
     $qs = http_build_query(array_filter($filters ));
     for ($p = 1; $p <= $total_pages; $p++):
     ?>
-    <a href="?<?php echo $qs; ?>&page=<?php echo $p; ?>" 
+    <a href="?<?php echo $qs; ?>&page=<?php echo $p; ?>"
        class="btn btn-sm <?php echo $p === $page ? 'btn-primary' : 'btn-secondary'; ?>">
         <?php echo $p; ?>
     </a>

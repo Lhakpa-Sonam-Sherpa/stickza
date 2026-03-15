@@ -2,6 +2,7 @@
 require_once '../../src/config.php';
 require_once '../../src/classes/Database.php';
 require_once '../../src/classes/Product.php';
+require_once '../../src/helpers/Validator.php';
 
 initSecureSession();
 if (!isset($_SESSION['admin_id'])) {
@@ -121,7 +122,6 @@ require_once '../includes/header.php';
         <div class="form-section">
             <h3 class="form-section-title">Product Image</h3>
             <div class="form-group form-full">
-                <label for="image">Upload Image <span class="required">*</span></label>
                 <label for="image" class="file-upload-wrapper">
                     <input type="file" id="image" name="image" class="file-input" accept="image/*" required onchange="previewImage(event)">
                     <div class="file-upload-hint">
@@ -133,7 +133,7 @@ require_once '../includes/header.php';
                     </div>
                 </label>
                 <div id="imagePreview" style="margin-top: 1rem; display:none;">
-                    <img id="previewImg" src="" alt="Image Preview" style="max-width: 150px; max-height: 150px; border-radius: var(--radius); border: 1px solid var(--border);">
+                    <img id="previewImg" src="" alt="Image Preview">
                 </div>
             </div>
         </div>

@@ -33,43 +33,41 @@ require_once '../includes/header.php';
 </div>
 
 <!-- Filter Card -->
-<div class="content-card" style="margin-bottom: 1.5rem;">
+<div class="content-card card-spacing">
     <div class="card-header"><h2 class="card-title">Filter Users</h2></div>
-    <div style="padding: 1.25rem;">
-        <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; align-items: end;">
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">User ID</label>
-                <input type="number" name="user_id" class="form-control" placeholder="e.g. 5" value="<?php echo htmlspecialchars($filters['user_id']); ?>">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Name</label>
-                <input type="text" name="name" class="form-control" placeholder="Search name..." value="<?php echo htmlspecialchars($filters['name']); ?>">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Email</label>
-                <input type="text" name="email" class="form-control" placeholder="Search email..." value="<?php echo htmlspecialchars($filters['email']); ?>">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Registered From</label>
-                <input type="date" name="date_from" class="form-control" value="<?php echo htmlspecialchars($filters['date_from']); ?>">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Registered To</label>
-                <input type="date" name="date_to" class="form-control" value="<?php echo htmlspecialchars($filters['date_to']); ?>">
-            </div>
-            <div style="display:flex; gap:0.5rem;">
-                <button type="submit" class="btn btn-primary">Filter</button>
-                <a href="index.php" class="btn btn-secondary">Clear</a>
-            </div>
-        </form>
-    </div>
+    <form method="GET" class="filter-form">
+        <div>
+            <label class="form-label">User ID</label>
+            <input type="number" name="user_id" class="form-control" placeholder="e.g. 5" value="<?php echo htmlspecialchars($filters['user_id']); ?>">
+        </div>
+        <div>
+            <label class="form-label">Name</label>
+            <input type="text" name="name" class="form-control" placeholder="Search name..." value="<?php echo htmlspecialchars($filters['name']); ?>">
+        </div>
+        <div>
+            <label class="form-label">Email</label>
+            <input type="text" name="email" class="form-control" placeholder="Search email..." value="<?php echo htmlspecialchars($filters['email']); ?>">
+        </div>
+        <div>
+            <label class="form-label">Registered From</label>
+            <input type="date" name="date_from" class="form-control" value="<?php echo htmlspecialchars($filters['date_from']); ?>">
+        </div>
+        <div>
+            <label class="form-label">Registered To</label>
+            <input type="date" name="date_to" class="form-control" value="<?php echo htmlspecialchars($filters['date_to']); ?>">
+        </div>
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="index.php" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
 </div>
 
 <!-- Users Table -->
 <div class="content-card">
     <div class="card-header">
         <h2 class="card-title">Users</h2>
-        <span style="font-size:0.8125rem; color:var(--text-muted);">Showing <?php echo count($users); ?> of <?php echo $total; ?></span>
+        <span class="meta-text">Showing <?php echo count($users); ?> of <?php echo $total; ?></span>
     </div>
     <div>
         <?php if (empty($users)): ?>
@@ -88,17 +86,24 @@ require_once '../includes/header.php';
                     <th>City</th>
                     <th>Phone</th>
                     <th>Registered</th>
+                    <th>Actions</th>
                 </tr>
             </thead>
             <tbody>
             <?php foreach ($users as $user): ?>
             <tr>
-                <td style="color:var(--text-muted);">#<?php echo $user['id']; ?></td>
-                <td style="font-weight:500; color:var(--text-primary);"><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
+                <td class="col-id cell-muted">#<?php echo $user['id']; ?></td>
+                <td class="cell-primary"><?php echo htmlspecialchars($user['first_name'] . ' ' . $user['last_name']); ?></td>
                 <td><?php echo htmlspecialchars($user['email']); ?></td>
                 <td><?php echo htmlspecialchars($user['city'] ?? '—'); ?></td>
-                <td><?php echo htmlspecialchars($user['phone_no'] ?? '—'); ?></td>
-                <td><?php echo date('M d, Y', strtotime($user['created_at'])); ?></td>
+                <td class="col-phone"><?php echo htmlspecialchars($user['phone_no'] ?? '—'); ?></td>
+                <td class="col-date"><?php echo date('M d, Y', strtotime($user['created_at'])); ?></td>
+                <td class="col-actions">
+                    <div class="actions">
+                        <a href="mailto:<?php echo htmlspecialchars($user['email']); ?>" class="btn btn-sm btn-secondary" title="Send Email">Email</a>
+                        <a href="?delete=<?php echo $user['id']; ?>" class="btn btn-sm btn-danger" onclick="return confirm('Delete this user? This action cannot be undone.');">Delete</a>
+                    </div>
+                </td>
             </tr>
             <?php endforeach; ?>
             </tbody>
@@ -109,12 +114,12 @@ require_once '../includes/header.php';
 
 <!-- Pagination -->
 <?php if ($total_pages > 1): ?>
-<div style="display:flex; gap:0.5rem; justify-content:center; margin-top:1.5rem; flex-wrap:wrap;">
+<div class="pagination">
     <?php
     $qs = http_build_query(array_filter(['user_id'=>$filters['user_id'],'name'=>$filters['name'],'email'=>$filters['email'],'date_from'=>$filters['date_from'],'date_to'=>$filters['date_to']]));
     for ($p = 1; $p <= $total_pages; $p++):
     ?>
-    <a href="?<?php echo $qs; ?>&page=<?php echo $p; ?>" 
+    <a href="?<?php echo $qs; ?>&page=<?php echo $p; ?>"
        class="btn btn-sm <?php echo $p === $page ? 'btn-primary' : 'btn-secondary'; ?>">
         <?php echo $p; ?>
     </a>

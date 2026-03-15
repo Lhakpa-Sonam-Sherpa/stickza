@@ -45,7 +45,7 @@ if (isset($_GET['delete']) && is_numeric($_GET['delete'])) {
 require_once '../includes/header.php';
 ?>
 
-<div class="page-header" style="display:flex; justify-content:space-between; align-items:center;">
+<div class="page-header-actions">
     <div>
         <h1>Products</h1>
         <p>Manage your sticker inventory (<?php echo $total; ?> total)</p>
@@ -60,48 +60,45 @@ require_once '../includes/header.php';
 <?php if ($error): ?><div class="alert alert-error"><?php echo htmlspecialchars($error); ?></div><?php endif; ?>
 
 <!-- Filter Card -->
-<div class="content-card" style="margin-bottom: 1.5rem;">
+<div class="content-card card-spacing">
     <div class="card-header"><h2 class="card-title">Filter Products</h2></div>
-    <div style="padding: 1.25rem;">
-        <!-- Replaced inline style with a more robust CSS Grid layout -->
-        <form method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; align-items: end;">
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Product ID</label>
-                <input type="number" name="product_id" class="form-control" placeholder="ID" value="<?php echo htmlspecialchars($filters['product_id']); ?>">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Name</label>
-                <input type="text" name="name" class="form-control" placeholder="Search name..." value="<?php echo htmlspecialchars($filters['name']); ?>">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Category</label>
-                <input type="text" name="category" class="form-control" placeholder="Category..." value="<?php echo htmlspecialchars($filters['category']); ?>">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Min Price (Rs)</label>
-                <input type="number" name="price_min" class="form-control" placeholder="0" value="<?php echo htmlspecialchars($filters['price_min']); ?>">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Max Price (Rs)</label>
-                <input type="number" name="price_max" class="form-control" placeholder="9999" value="<?php echo htmlspecialchars($filters['price_max']); ?>">
-            </div>
-            <div>
-                <label style="display:block; font-size:0.8125rem; font-weight:500; margin-bottom:0.375rem;">Max Stock</label>
-                <input type="number" name="stock_max" class="form-control" placeholder="e.g. 5 for low stock" value="<?php echo htmlspecialchars($filters['stock_max']); ?>">
-            </div>
-            <div style="display:flex; gap:0.5rem;">
-                <button type="submit" class="btn btn-primary">Filter</button>
-                <a href="index.php" class="btn btn-secondary">Clear</a>
-            </div>
-        </form>
-    </div>
+    <form method="GET" class="filter-form">
+        <div>
+            <label class="form-label">Product ID</label>
+            <input type="number" name="product_id" class="form-control" placeholder="ID" value="<?php echo htmlspecialchars($filters['product_id']); ?>">
+        </div>
+        <div>
+            <label class="form-label">Name</label>
+            <input type="text" name="name" class="form-control" placeholder="Search name..." value="<?php echo htmlspecialchars($filters['name']); ?>">
+        </div>
+        <div>
+            <label class="form-label">Category</label>
+            <input type="text" name="category" class="form-control" placeholder="Category..." value="<?php echo htmlspecialchars($filters['category']); ?>">
+        </div>
+        <div>
+            <label class="form-label">Min Price (Rs)</label>
+            <input type="number" name="price_min" class="form-control" placeholder="0" value="<?php echo htmlspecialchars($filters['price_min']); ?>">
+        </div>
+        <div>
+            <label class="form-label">Max Price (Rs)</label>
+            <input type="number" name="price_max" class="form-control" placeholder="9999" value="<?php echo htmlspecialchars($filters['price_max']); ?>">
+        </div>
+        <div>
+            <label class="form-label">Max Stock</label>
+            <input type="number" name="stock_max" class="form-control" placeholder="e.g. 5 for low stock" value="<?php echo htmlspecialchars($filters['stock_max']); ?>">
+        </div>
+        <div class="btn-group">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="index.php" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
 </div>
 
 <!-- Products Table -->
 <div class="content-card">
     <div class="card-header">
         <h2 class="card-title">Products</h2>
-        <span style="font-size:0.8125rem; color:var(--text-muted);">Showing <?php echo count($products); ?> of <?php echo $total; ?></span>
+        <span class="meta-text">Showing <?php echo count($products); ?> of <?php echo $total; ?></span>
     </div>
     <div>
         <?php if (empty($products)): ?>
@@ -125,11 +122,11 @@ require_once '../includes/header.php';
             <tbody>
             <?php foreach ($products as $product): ?>
             <tr>
-                <td>
+                <td class="col-image">
                     <?php if ($product['image_url']): ?>
                     <img src="<?php echo SITE_URL; ?>public/assets/images/products/<?php echo htmlspecialchars($product['image_url']); ?>" alt="">
                     <?php else: ?>
-                    <div style="width:44px; height:44px; background:var(--bg-tertiary); border-radius:var(--radius); border:1px solid var(--border);"></div>
+                    <div style="width:40px; height:40px; background:var(--bg-tertiary); border-radius:var(--radius); border:1px solid var(--border);"></div>
                     <?php endif; ?>
                 </td>
                 <td>
@@ -137,11 +134,11 @@ require_once '../includes/header.php';
                     <div class="product-sku">#<?php echo $product['id']; ?></div>
                 </td>
                 <td><?php echo htmlspecialchars($product['category_name'] ?? '—'); ?></td>
-                <td style="font-weight:500;">
+                <td class="cell-primary">
                     <?php if (!is_null($product['discount_price']) || !is_null($product['discount_percent'])): ?>
                         <span style="text-decoration: line-through; color: var(--text-muted); font-size: 0.85em;">
                             Rs <?php echo number_format($product['price'], 2); ?>
-                        </span>  
+                        </span>
 
                         <span style="color: var(--danger); font-weight: bold;">
                             Rs <?php
@@ -167,10 +164,10 @@ require_once '../includes/header.php';
                         <span class="stock-badge stock-in"><?php echo $product['stock_quantity']; ?></span>
                     <?php endif; ?>
                 </td>
-                <td>
+                <td class="col-actions">
                     <div class="actions">
                         <a href="edit.php?id=<?php echo $product['id']; ?>" class="btn btn-sm btn-secondary">Edit</a>
-                        <a href="?delete=<?php echo $product['id']; ?>&token=<?php echo generateCSRFToken(); ?>&<?php echo http_build_query(array_filter($filters  )); ?>" 
+                        <a href="?delete=<?php echo $product['id']; ?>&token=<?php echo generateCSRFToken(); ?>&<?php echo http_build_query(array_filter($filters  )); ?>"
                            class="btn btn-sm btn-danger"
                            onclick="return confirm('Delete this product?')">Delete</a>
                     </div>
@@ -185,12 +182,12 @@ require_once '../includes/header.php';
 
 <!-- Pagination -->
 <?php if ($total_pages > 1): ?>
-<div style="display:flex; gap:0.5rem; justify-content:center; margin-top:1.5rem; flex-wrap:wrap;">
+<div class="pagination">
     <?php
     $qs = http_build_query(array_filter($filters  ));
     for ($p = 1; $p <= $total_pages; $p++):
     ?>
-    <a href="?<?php echo $qs; ?>&page=<?php echo $p; ?>" 
+    <a href="?<?php echo $qs; ?>&page=<?php echo $p; ?>"
        class="btn btn-sm <?php echo $p === $page ? 'btn-primary' : 'btn-secondary'; ?>">
         <?php echo $p; ?>
     </a>

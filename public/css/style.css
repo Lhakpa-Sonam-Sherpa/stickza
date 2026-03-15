@@ -297,6 +297,15 @@ main {
   padding: var(--space-12) var(--space-6);
 }
 
+/* Header with back button layout */
+.header-with-button {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  gap: 1rem;
+}
+
 /* Hero Section - Clean, Editorial */
 .hero-section {
   text-align: center;
@@ -938,6 +947,14 @@ textarea.form-control {
   border: 1px solid var(--border);
 }
 
+.form-card {
+  background: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 2.5rem;
+  box-shadow: var(--shadow-md);
+}
+
 .auth-header {
   text-align: center;
   margin-bottom: var(--space-8);
@@ -1094,6 +1111,35 @@ textarea.form-control {
   text-align: center;
   color: var(--text-muted);
   font-size: var(--text-sm);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  align-items: center;
+}
+
+.footer-top {
+  font-size: var(--text-sm);
+}
+
+.footer-links {
+  display: flex;
+  gap: 2rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  font-size: var(--text-sm);
+}
+
+.footer-links a {
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--transition-fast);
+  border-bottom: 1px solid transparent;
+  padding-bottom: 2px;
+}
+
+.footer-links a:hover {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
 }
 
 /* ============================================

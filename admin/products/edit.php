@@ -136,7 +136,6 @@ require_once '../includes/header.php';
         <div class="form-section">
             <h3 class="form-section-title">Product Image</h3>
             <div class="form-group form-full">
-                <label for="image">Update Image (Optional)</label>
                 <label for="image" class="file-upload-wrapper">
                     <input type="file" id="image" name="image" class="file-input" accept="image/*" onchange="previewImage(event)">
                     <div class="file-upload-hint">
@@ -186,7 +185,7 @@ require_once '../includes/header.php';
             <a href="index.php" class="btn btn-secondary btn-lg">Cancel</a>
         </div>
     </form>
-</div></div>
+</div>
 
 <script>
 function previewImage(event) {

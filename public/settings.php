@@ -111,81 +111,130 @@ $page_title = 'Account Settings';
 include ROOT_PATH . 'src/includes/header.php';
 ?>
 
-<!-- The HTML and CSS for this file remain unchanged. -->
 <style>
-.settings-layout   { display: grid; grid-template-columns: 220px 1fr; gap: 2rem; max-width: 920px; margin: 0 auto; padding: 1.5rem 0 3rem; }
-.settings-sidebar  { display: flex; flex-direction: column; gap: 0.25rem; }
-.settings-sidebar a { display: flex; align-items: center; gap: 0.6rem; padding: 0.625rem 0.875rem; border-radius: var(--radius); font-size: 0.875rem; font-weight: 500; color: var(--text-secondary); transition: background var(--transition-fast), color var(--transition-fast); text-decoration: none; }
-.settings-sidebar a:hover, .settings-sidebar a.active { background: var(--primary-light); color: var(--primary); }
-.settings-sidebar a svg { width: 16px; height: 16px; flex-shrink: 0; }
-.settings-card     { background: var(--bg-primary); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 1.75rem; margin-bottom: 1.5rem; }
-.settings-card h2  { font-size: 1.0625rem; font-weight: 600; color: var(--text-primary); margin-bottom: 1.25rem; padding-bottom: 0.875rem; border-bottom: 1px solid var(--border); }
-.form-row          { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
-@media (max-width: 640px) {
+.settings-layout { 
+    display: grid; 
+    grid-template-columns: 240px 1fr; 
+    gap: 2.5rem; 
+    max-width: 1100px; 
+    margin: 0 auto; 
+    padding: 2rem 0 4rem; 
+}
+.settings-sidebar a { 
+    display: flex; 
+    align-items: center; 
+    gap: 0.75rem; 
+    padding: 0.75rem 1rem; 
+    border-radius: var(--radius-md); 
+    font-size: 0.9375rem; 
+    font-weight: 500; 
+    color: var(--text-secondary); 
+    transition: all 0.2s ease;
+    text-decoration: none; 
+    margin-bottom: 0.5rem;
+    border: 1px solid transparent;
+}
+.settings-sidebar a:hover { 
+    background: var(--bg-tertiary); 
+    color: var(--text-primary); 
+}
+.settings-sidebar a.active { 
+    background: var(--primary-light); 
+    color: var(--primary); 
+    border-color: var(--primary);
+    font-weight: 600;
+}
+.settings-sidebar a svg { 
+    width: 20px; 
+    height: 20px; 
+    flex-shrink: 0; 
+}
+.settings-card { 
+    background: var(--bg-primary); 
+    border: 1px solid var(--border); 
+    border-radius: var(--radius-lg); 
+    margin-bottom: 2rem; 
+}
+.settings-card-header {
+    padding: 1.25rem 1.75rem;
+    border-bottom: 1px solid var(--border);
+}
+.settings-card-header h2 { 
+    font-size: 1.125rem; 
+    font-weight: 600; 
+    color: var(--text-primary); 
+    margin: 0;
+}
+.settings-card-body {
+    padding: 1.75rem;
+}
+.form-row { 
+    display: grid; 
+    grid-template-columns: 1fr 1fr; 
+    gap: 1.5rem; 
+}
+@media (max-width: 900px) {
     .settings-layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
     .form-row { grid-template-columns: 1fr; }
 }
 </style>
 
 <div class="settings-layout">
     <!-- Sidebar -->
-    <nav class="settings-sidebar">
-    <a href="profile.php" class="<?php echo $current_page == 'profile.php' ? 'active' : ''; ?>">
-        My Profile
-    </a>
-    <a href="settings.php" class="<?php echo $current_page == 'settings.php' ? 'active' : ''; ?>">
-        Account Settings
-    </a>
-    <a href="privacy.php" class="<?php echo $current_page == 'privacy.php' ? 'active' : ''; ?>">
-        Privacy Policy
-    </a>
-    <a href="terms.php" class="<?php echo $current_page == 'terms.php' ? 'active' : ''; ?>">
-        Terms of Service
-    </a>
-    <a href="feedback.php" class="<?php echo $current_page == 'feedback.php' ? 'active' : ''; ?>">
-        Feedback
-    </a>
-</nav>
+    <aside class="settings-sidebar">
+        <a href="profile.php"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>My Orders</a>
+        <a href="settings.php" class="active"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>Account Settings</a>
+        <a href="feedback.php"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>Send Feedback</a>
+        <a href="privacy.php"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>Privacy Policy</a>
+        <a href="terms.php"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Terms of Service</a>
+        <a href="logout.php" style="color:var(--danger); margin-top:0.75rem;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>Sign Out</a>
+    </aside>
 
     <!-- Main content -->
     <div>
         <!-- Profile update form -->
         <div class="settings-card">
-            <h2>Profile Information</h2>
-            <?php if ($profile_success): ?><div class="alert alert-success" style="margin-bottom:1.25rem;"><?php echo htmlspecialchars($profile_success); ?></div><?php endif; ?>
-            <?php if ($profile_error): ?><div class="alert alert-error" style="margin-bottom:1.25rem;"><?php echo htmlspecialchars($profile_error); ?></div><?php endif; ?>
-            <form method="POST">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
-                <input type="hidden" name="form" value="update_profile">
-                <div class="form-row" style="margin-bottom:1rem;">
-                    <div class="form-group"><label for="first_name">First Name <span style="color:var(--danger)">*</span></label><input type="text" id="first_name" name="first_name" class="form-control" value="<?php echo htmlspecialchars($user['first_name']); ?>" required maxlength="50"></div>
-                    <div class="form-group"><label for="last_name">Last Name <span style="color:var(--danger)">*</span></label><input type="text" id="last_name" name="last_name" class="form-control" value="<?php echo htmlspecialchars($user['last_name']); ?>" required maxlength="50"></div>
-                </div>
-                <div class="form-group" style="margin-bottom:1rem;"><label for="email">Email Address <span style="color:var(--danger)">*</span></label><input type="email" id="email" name="email" class="form-control" value="<?php echo htmlspecialchars($user['email']); ?>" required maxlength="100"></div>
-                <div class="form-row" style="margin-bottom:1rem;">
-                    <div class="form-group"><label for="phone_no">Phone Number</label><input type="tel" id="phone_no" name="phone_no" class="form-control" value="<?php echo htmlspecialchars($user['phone_no'] ?? ''); ?>" maxlength="20"></div>
-                    <div class="form-group"><label for="city">City</label><input type="text" id="city" name="city" class="form-control" value="<?php echo htmlspecialchars($user['city'] ?? ''); ?>" maxlength="60"></div>
-                </div>
-                <div class="form-group" style="margin-bottom:1.25rem;"><label for="address">Address</label><input type="text" id="address" name="address" class="form-control" value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>" maxlength="150"></div>
-                <button type="submit" class="btn btn-primary">Save Changes</button>
-            </form>
+            <div class="settings-card-header"><h2>Profile Information</h2></div>
+            <div class="settings-card-body">
+                <?php if ($profile_success): ?><div class="alert alert-success"><?php echo htmlspecialchars($profile_success); ?></div><?php endif; ?>
+                <?php if ($profile_error): ?><div class="alert alert-error"><?php echo htmlspecialchars($profile_error); ?></div><?php endif; ?>
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                    <input type="hidden" name="form" value="update_profile">
+                    <div class="form-row">
+                        <div class="form-group"><label for="first_name">First Name <span style="color:var(--danger)">*</span></label><input type="text" id="first_name" name="first_name" class="form-control" value="<?php echo htmlspecialchars($user['first_name']); ?>" required maxlength="50"></div>
+                        <div class="form-group"><label for="last_name">Last Name <span style="color:var(--danger)">*</span></label><input type="text" id="last_name" name="last_name" class="form-control" value="<?php echo htmlspecialchars($user['last_name']); ?>" required maxlength="50"></div>
+                    </div>
+                    <div class="form-group"><label for="email">Email Address <span style="color:var(--danger)">*</span></label><input type="email" id="email" name="email" class="form-control" value="<?php echo htmlspecialchars($user['email']); ?>" required maxlength="100"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label for="phone_no">Phone Number</label><input type="tel" id="phone_no" name="phone_no" class="form-control" value="<?php echo htmlspecialchars($user['phone_no'] ?? ''); ?>" maxlength="20"></div>
+                        <div class="form-group"><label for="city">City</label><input type="text" id="city" name="city" class="form-control" value="<?php echo htmlspecialchars($user['city'] ?? ''); ?>" maxlength="60"></div>
+                    </div>
+                    <div class="form-group"><label for="address">Address</label><input type="text" id="address" name="address" class="form-control" value="<?php echo htmlspecialchars($user['address'] ?? ''); ?>" maxlength="150"></div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
         </div>
 
         <!-- Password change form -->
         <div class="settings-card">
-            <h2>Change Password</h2>
-            <?php if ($password_success): ?><div class="alert alert-success" style="margin-bottom:1.25rem;"><?php echo htmlspecialchars($password_success); ?></div><?php endif; ?>
-            <?php if ($password_error): ?><div class="alert alert-error" style="margin-bottom:1.25rem;"><?php echo htmlspecialchars($password_error); ?></div><?php endif; ?>
-            <form method="POST">
-                <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
-                <input type="hidden" name="form" value="change_password">
-                <div class="form-group" style="margin-bottom:1rem;"><label for="current_password">Current Password</label><input type="password" id="current_password" name="current_password" class="form-control" required autocomplete="current-password"></div>
-                <div class="form-row" style="margin-bottom:1.25rem;">
-                    <div class="form-group"><label for="new_password">New Password</label><input type="password" id="new_password" name="new_password" class="form-control" required minlength="8" autocomplete="new-password"><div class="form-hint">Minimum 8 characters.</div></div>
-                    <div class="form-group"><label for="confirm_password">Confirm New Password</label><input type="password" id="confirm_password" name="confirm_password" class="form-control" required minlength="8" autocomplete="new-password"></div>
-                </div>
-                <button type="submit" class="btn btn-primary">Update Password</button>
-            </form>
+            <div class="settings-card-header"><h2>Change Password</h2></div>
+            <div class="settings-card-body">
+                <?php if ($password_success): ?><div class="alert alert-success"><?php echo htmlspecialchars($password_success); ?></div><?php endif; ?>
+                <?php if ($password_error): ?><div class="alert alert-error"><?php echo htmlspecialchars($password_error); ?></div><?php endif; ?>
+                <form method="POST">
+                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($csrf_token); ?>">
+                    <input type="hidden" name="form" value="change_password">
+                    <div class="form-group"><label for="current_password">Current Password</label><input type="password" id="current_password" name="current_password" class="form-control" required autocomplete="current-password"></div>
+                    <div class="form-row">
+                        <div class="form-group"><label for="new_password">New Password</label><input type="password" id="new_password" name="new_password" class="form-control" required minlength="8" autocomplete="new-password"><div class="form-hint">Minimum 8 characters.</div></div>
+                        <div class="form-group"><label for="confirm_password">Confirm New Password</label><input type="password" id="confirm_password" name="confirm_password" class="form-control" required minlength="8" autocomplete="new-password"></div>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Update Password</button>
+                </form>
+            </div>
         </div>
     </div>
 </div>
