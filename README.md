@@ -1,95 +1,236 @@
-# Sticker Shop 🎨.Stickza
+# Stickza - E-commerce Sticker Shop
 
-A dynamic and fully functional e-commerce website development work in progress for a sticker shop, built from scratch using PHP & MySQL.
-
-**[➡️ Live Demo (Coming Soon!)](https://your-live-demo-url.com)**
-
-![Sticker Shop Screenshot]
-*A preview of the Sticker Shop homepage.*
+A full-featured e-commerce platform for a sticker shop, built from scratch with PHP and MySQL. Features a complete shopping experience with user authentication, cart management, order processing, and a dedicated admin panel.
 
 ---
 
-## ✨ Features
+## Features
 
-This project demonstrates a complete e-commerce user flow, from browsing products to placing an order.
+### Customer Features
+- **Product Catalog** - Browse stickers by category (Cute & Animals, Retro, Nature & Travel, Meme, Cartoon)
+- **Product Search** - Find stickers quickly with search functionality
+- **Shopping Cart** - Session-based cart with add, update, and remove capabilities
+- **Checkout Process** - Complete order placement with stock validation
+- **User Accounts** - Registration, login, and profile management
+- **Order History** - View past orders and order status
+- **Password Recovery** - Email-based password reset via SMTP
+- **Feedback System** - Submit feedback and suggestions
+- **Theme Toggle** - Switch between light and dark mode
 
-*   **Product Catalog:** Browse products from a MySQL database, displayed in a clean, responsive grid.
-*   **Product Details:** View detailed information for each individual product.
-*   **User Authentication:** Secure user registration and login system with password hashing.
-*   **Shopping Cart:** A session-based shopping cart to add, update, and remove items.
-*   **Checkout Process:** A simulated checkout process that validates stock and creates a permanent record of the order.
-*   **Order History:** Users can view their past orders.
-*   **Database-Driven:** All product, user, and order information is stored and managed in a MySQL database.
+### Admin Panel
+- **Dashboard** - Overview of store activity
+- **Product Management** - Add, edit, and delete products with image uploads
+- **Order Management** - View orders and update status (pending, processing, shipped, cancelled)
+- **User Management** - View and manage customer accounts
+- **Feedback Management** - Review and respond to customer feedback
+
+### Security
+- CSRF protection on all forms
+- Secure session handling with timeout
+- Password hashing (bcrypt)
+- Input validation and sanitization
+- SQL prepared statements
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
-*   **Backend:** PHP
-*   **Database:** MySQL
-*   **Frontend:** HTML5, CSS3 (with Flexbox & Grid)
-*   **Development Environment:** XAMPP (Apache, MySQL, PHP)
-*   **Version Control:** Git & GitHub
+| Layer | Technology |
+|-------|------------|
+| Backend | PHP 8.0+ |
+| Database | MySQL / MariaDB |
+| Frontend | HTML5, CSS3 (Flexbox & Grid) |
+| Email | PHPMailer (SMTP) |
+| Server | Apache (XAMPP) |
 
 ---
 
-## 🚀 Getting Started
+## Project Structure
 
-Follow these instructions to get a copy of the project up and running on your local machine for development and testing purposes.
+```
+website/
+├── admin/                  # Admin panel
+│   ├── css/               # Admin styles
+│   ├── feedback/          # Feedback management
+│   ├── includes/          # Header, footer
+│   ├── orders/            # Order management
+│   ├── products/          # Product CRUD
+│   ├── users/             # User management
+│   └── login.php          # Admin authentication
+├── database/
+│   └── website_db.sql     # Database schema & seed data
+├── public/                 # Public-facing pages
+│   ├── css/               # Public styles
+│   ├── images/            # Product images
+│   ├── index.php          # Homepage
+│   ├── product.php        # Product details
+│   ├── cart.php           # Shopping cart
+│   ├── checkout.php       # Checkout process
+│   ├── login.php          # User login
+│   ├── register.php       # User registration
+│   └── profile.php        # User profile
+├── src/
+│   ├── classes/           # PHP classes
+│   │   ├── Admin.php
+│   │   ├── AdminProduct.php
+│   │   ├── Cart.php
+│   │   ├── Database.php
+│   │   ├── Order.php
+│   │   ├── Product.php
+│   │   └── User.php
+│   ├── helpers/           # Helper functions
+│   │   └── Validator.php
+│   ├── includes/          # Shared components
+│   └── config.php         # Configuration
+├── vendor/                 # Composer dependencies
+└── README.md
+```
+
+---
+
+## Getting Started
 
 ### Prerequisites
 
-You will need a local server environment that supports PHP and MySQL. The easiest way to get this is by installing **XAMPP**.
+- [XAMPP](https://www.apachefriends.org/download.html) (Apache, MySQL, PHP 8.0+)
+- Web browser
+- Git (optional)
 
-*   [Download XAMPP](https://www.apachefriends.org/download.html) (includes Apache, PHP, and MySQL)
+### Installation
 
-### Installation & Setup
+1. **Clone or download the project**
 
-1.  **Clone the Repository**
-    Clone this project into your XAMPP `htdocs` folder. The `htdocs` folder is where XAMPP serves files from.
-    ```bash
-    # Navigate to your XAMPP htdocs directory
-    # On Windows, this is usually C:/xampp/htdocs/
-    cd C:/xampp/htdocs/
+   Place the project in your XAMPP `htdocs` folder:
+   ```bash
+   cd C:/xampp/htdocs/
+   git clone https://github.com/your-username/stickza.git website
+   ```
 
-    # Clone the project
-    git clone https://github.com/lhakap-sonam-sherpa/sticker-shop.github.io.git sticker-shop
-    ```
-    *(Note: You may want to rename your repository to just `sticker-shop` on GitHub for clarity)*
+   Or download and extract to `C:/xampp/htdocs/website`
 
-2.  **Start Your Services**
-    Open the XAMPP Control Panel and start the **Apache** and **MySQL** services.
+2. **Start XAMPP services**
 
-3.  **Create the Database**
-    *   Open your web browser and navigate to `http://localhost/phpmyadmin/`.
-    *   Click on the **"Databases"** tab.
-    *   Under "Create database", enter the name `sticker_shop` and click **"Create"**.
+   Open XAMPP Control Panel and start:
+   - Apache
+   - MySQL
 
-4.  **Import the Database Schema**
-    *   After creating the database, click on its name (`sticker_shop`) in the left sidebar.
-    *   Click on the **"Import"** tab at the top.
-    *   Click "Choose File" and select the `database.sql` file from the root of the project folder.
-    *   Scroll down and click **"Go"**. This will create all the necessary tables (`products`, `customers`, `orders`, etc.).
+3. **Create the database**
 
-5.  **Configure the Application**
-    *   In the project folder, find the file `src/config.php`.
-    *   Open it and make sure the database credentials match your local XAMPP setup. The default settings should work for a standard XAMPP installation.
-    ```php
-    // src/config.php
-    define('DB_HOST', 'localhost');
-    define('DB_USER', 'root'); // Default XAMPP user
-    define('DB_PASS', '');     // Default XAMPP password is empty
-    define('DB_NAME', 'sticker_shop');
-    ```
+   - Open [phpMyAdmin](http://localhost/phpmyadmin/)
+   - Click "Databases" tab
+   - Create a new database named `website_db`
+   - Click "Create"
 
-6.  **Run the Application**
-    You're all set! Open your web browser and navigate to:
-    **`http://localhost/sticker-shop/public/`**
+4. **Import the database schema**
 
-    You should now see the homepage of the Sticker Shop.
+   - Select the `website_db` database
+   - Click the "Import" tab
+   - Choose the file: `database/website_db.sql`
+   - Click "Go"
+
+5. **Configure the application**
+
+   Open `src/config.php` and verify database settings:
+   ```php
+   define('DB_HOST', 'localhost');
+   define('DB_USER', 'root');       // Default XAMPP user
+   define('DB_PASS', '');           // Default XAMPP password (empty)
+   define('DB_NAME', 'website_db');
+   ```
+
+6. **Configure email (optional)**
+
+   For password reset functionality, update SMTP settings in `src/config.php`:
+   ```php
+   define('SMTP_HOST', 'smtp.gmail.com');
+   define('SMTP_PORT', 587);
+   define('SMTP_USER', 'your-email@gmail.com');
+   define('SMTP_PASS', 'your-app-password');
+   ```
+
+7. **Access the application**
+
+   - **Store**: http://localhost/website/public/
+   - **Admin Panel**: http://localhost/website/admin/
 
 ---
 
-## 📄 License
+## Default Accounts
+
+### Admin Access
+To access the admin panel, use an account with `is_admin = 1` in the database:
+- Email: `example2@gmail.com`
+- Password: Set during registration (check database for existing test accounts)
+
+### Test Customers
+Several test accounts exist in the seed data. Register a new account for fresh testing.
+
+---
+
+## Configuration
+
+### Environment Variables (Optional)
+
+For production, set these environment variables instead of hardcoding in config:
+```
+SMTP_USER=your-email@gmail.com
+SMTP_PASS=your-app-password
+SMTP_FROM_EMAIL=no-reply@stickza.com
+```
+
+### Session Settings
+
+Sessions are configured with:
+- 30-minute inactivity timeout
+- HTTP-only cookies
+- SameSite=Lax protection
+
+---
+
+## Database Schema
+
+| Table | Description |
+|-------|-------------|
+| `categories` | Product categories |
+| `products` | Product catalog with pricing and stock |
+| `customers` | User accounts (customers and admins) |
+| `orders` | Order records with status tracking |
+| `order_items` | Individual items within orders |
+| `feedback` | Customer feedback submissions |
+| `password_resets` | Password reset tokens |
+
+---
+
+## Screenshots
+
+### Homepage
+*Product catalog with category filtering*
+
+### Shopping Cart
+*Cart management with quantity controls*
+
+### Admin Dashboard
+*Order and product management interface*
+
+---
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/new-feature`)
+3. Commit changes (`git commit -m 'Add new feature'`)
+4. Push to the branch (`git push origin feature/new-feature`)
+5. Open a Pull Request
+
+---
+
+## License
 
 This project is open-source and available under the [MIT License](LICENSE).
+
+---
+
+## Acknowledgments
+
+- Built as a learning project for PHP & MySQL e-commerce development
+- Icons and placeholder images for demonstration purposes
